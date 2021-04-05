@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+  <_name>Lattice Hinges</_name>
+  <id>net.buxtronix.lattice_hinge</id>
+  <dependency type="executable" location="inx">lattice_hinge.py</dependency>
+  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <param name="tab" type="notebook">
+    <page name="straight_lattice" gui-text="Straight lattice">
+      <image>straight_lattice.svg</image>
+      <param name="sl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
+      <param name="sl_interval" type="int" min="0" max="1000" gui-text="Interval">30</param>
+      <param name="sl_spacing" type="float" min="0" max="1000" gui-text="Spacing">3</param>
+      <param name="sl_gap" type="float" min="0" max="10" gui-text="Gap">1.0</param>
+      <label xml:space="preserve">
+Hints for optimal rendering:
+  - Interval should be greater than length.
+      </label>
+    </page>
+    <page name="diamond_lattice" gui-text="Diamond lattice">
+      <image>diamond_lattice.svg</image>
+      <param name="dl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
+      <param name="dl_interval" type="int" min="0" max="1000" gui-text="Interval">24</param>
+      <param name="dl_spacing" type="float" min="0" max="1000" gui-text="Spacing">5</param>
+      <param name="dl_height" type="float" min="0" max="10" gui-text="Height">5</param>
+      <label xml:space="preserve">
+Hints for optimal rendering:
+  - Interval should be greater than length.
+      </label>
+    </page>
+    <page name="honeycomb_lattice" gui-text="Honeycomb lattice">
+      <image>honeycomb_lattice.svg</image>
+      <param name="hl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
+      <param name="hl_interval" type="int" min="0" max="1000" gui-text="Interval">24</param>
+      <param name="hl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
+      <param name="hl_height" type="float" min="0" max="10" gui-text="Height">5</param>
+      <param name="hl_ratio" type="float" min="0" max="1.0" gui-text="Ratio">0.5</param>
+      <label xml:space="preserve">
+Hints for optimal rendering:
+  - Interval should be greater than length.
+      </label>
+    </page>
+    <page name="wavy_lattice" gui-text="Wavy lattice">
+      <image>wavy_lattice.svg</image>
+      <param name="wl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
+      <param name="wl_interval" type="int" min="0" max="1000" gui-text="Interval">18</param>
+      <param name="wl_spacing" type="float" min="0" max="1000" gui-text="Spacing">3</param>
+      <param name="wl_height" type="float" min="0" max="10" gui-text="Height">3</param>
+      <label xml:space="preserve">
+Hints for optimal rendering:
+  - Interval should be less than length.
+  - Height should equal the spacing.
+      </label>
+    </page>
+    <page name="about" gui-text="About">
+      <label xml:space="preserve">
+This extension renders Lattice Hinges, aka laser kerf bending.
+	      
+These patterns allow otherwise rigid materials (eg wood, acrylic)
+to have bends formed in them.
+      </label>
+      <image>laser_bend.png</image>
+      <label appearance="url">https://github.com/buxtronix/lattice-hinge</label>
+    </page>
+  </param>
+  <param name="width" type="float" min="0" max="10000" gui-text="Width">100</param>
+  <param name="height" type="float" min="0" max="10000" gui-text="Height">100</param>
+  <label>If an object is currently selected, its width and height will be used instead.</label>
+  <effect>
+    <object-type>all</object-type>
+    <effects-menu>
+       <submenu _name="Laser Tools"/>
+    </effects-menu>
+  </effect>
+  <script>
+    <command reldir="inx" interpreter="python">lattice_hinge.py</command>
+  </script>
+</inkscape-extension>

@@ -129,26 +129,22 @@ class LatticeHingeEffect(inkex.Effect):
         self.OptionParser.add_option("--sl_gap", type=float, default=0.5, help="Gap between links")
         self.OptionParser.add_option("--sl_interval", type=int, default=30, help="Interval between links")
         self.OptionParser.add_option("--sl_spacing", type=int, default=20, help="Spacing of links")
-        self.OptionParser.add_option("--sl_offset", type=int, default=15, help="Offset of rows")
 
         self.OptionParser.add_option("--dl_length", type=int, default=24, help="Length of diamonds")
         self.OptionParser.add_option("--dl_height", type=float, default=4, help="Height of diamonds")
         self.OptionParser.add_option("--dl_interval", type=int, default=28, help="Interval between diamonds")
         self.OptionParser.add_option("--dl_spacing", type=int, default=4, help="Spacing of diamonds")
-        self.OptionParser.add_option("--dl_offset", type=int, default=14, help="Offset of rows")
 
         self.OptionParser.add_option("--hl_length", type=int, default=24, help="Length of combs")
         self.OptionParser.add_option("--hl_height", type=float, default=4, help="Height of combs")
         self.OptionParser.add_option("--hl_interval", type=int, default=28, help="Interval between combs")
         self.OptionParser.add_option("--hl_spacing", type=int, default=4, help="Spacing of combs")
-        self.OptionParser.add_option("--hl_offset", type=int, default=14, help="Offset of rows")
         self.OptionParser.add_option("--hl_ratio", type=float, default=0.5, help="Element arrow ratio")
 
         self.OptionParser.add_option("--wl_length", type=int, default=20, help="Length of links")
         self.OptionParser.add_option("--wl_height", type=float, default=0.5, help="Height of links")
         self.OptionParser.add_option("--wl_interval", type=int, default=30, help="Interval between links")
         self.OptionParser.add_option("--wl_spacing", type=float, default=20, help="Spacing of links")
-        self.OptionParser.add_option("--wl_offset", type=int, default=15, help="Offset of rows")
 
     def effect(self):
         """
@@ -171,21 +167,21 @@ class LatticeHingeEffect(inkex.Effect):
                   self.options.width, self.options.height, offset,
                   stroke_width, canvas, self.options.sl_length,
                   self.options.sl_interval, self.options.sl_spacing,
-                  self.options.sl_offset,
+                  self.options.sl_interval/2,
                   link_gap=self.options.sl_gap)
         elif self.options.tab == '"diamond_lattice"':
           generator = DiamondLatticeGenerator(
                   self.options.width, self.options.height, offset,
                   stroke_width, canvas, self.options.dl_length,
                   self.options.dl_interval, self.options.dl_spacing,
-                  self.options.dl_offset,
+                  self.options.dl_interval/2,
                   diamond_height=self.options.dl_height)
         elif self.options.tab == '"honeycomb_lattice"':
           generator = HoneycombLatticeGenerator(
                   self.options.width, self.options.height, offset,
                   stroke_width, canvas, self.options.hl_length,
                   self.options.hl_interval, self.options.hl_spacing,
-                  self.options.hl_offset,
+                  self.options.hl_interval/2,
                   comb_height=self.options.hl_height,
                   comb_ratio=self.options.hl_ratio)
         elif self.options.tab == '"wavy_lattice"':
@@ -193,7 +189,7 @@ class LatticeHingeEffect(inkex.Effect):
                   self.options.width, self.options.height, offset,
                   stroke_width, canvas, self.options.wl_length,
                   self.options.wl_interval, self.options.wl_spacing,
-                  self.options.wl_offset,
+                  self.options.wl_interval,
                   wave_height=self.options.wl_height)
         else:
           inkex.errormsg(_("Select a valid pattern tab before rendering."))

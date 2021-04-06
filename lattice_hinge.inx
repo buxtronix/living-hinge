@@ -6,7 +6,7 @@
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <param name="tab" type="notebook">
     <page name="straight_lattice" gui-text="Straight lattice">
-      <image>straight_lattice.svg</image>
+      <image>straight_lattice.png</image>
       <param name="sl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
       <param name="sl_interval" type="int" min="0" max="1000" gui-text="Interval">30</param>
       <param name="sl_spacing" type="float" min="0" max="1000" gui-text="Spacing">3</param>
@@ -17,9 +17,9 @@ Hints for optimal rendering:
       </label>
     </page>
     <page name="diamond_lattice" gui-text="Diamond lattice">
-      <image>diamond_lattice.svg</image>
-      <param name="dl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
-      <param name="dl_interval" type="int" min="0" max="1000" gui-text="Interval">24</param>
+      <image>diamond_lattice.png</image>
+      <param name="dl_length" type="float" min="0" max="1000" gui-text="Length">20</param>
+      <param name="dl_interval" type="float" min="0" max="1000" gui-text="Interval">24</param>
       <param name="dl_spacing" type="float" min="0" max="1000" gui-text="Spacing">5</param>
       <param name="dl_height" type="float" min="0" max="10" gui-text="Height">5</param>
       <label xml:space="preserve">
@@ -28,7 +28,7 @@ Hints for optimal rendering:
       </label>
     </page>
     <page name="honeycomb_lattice" gui-text="Honeycomb lattice">
-      <image>honeycomb_lattice.svg</image>
+      <image>honeycomb_lattice.png</image>
       <param name="hl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
       <param name="hl_interval" type="int" min="0" max="1000" gui-text="Interval">24</param>
       <param name="hl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
@@ -40,7 +40,7 @@ Hints for optimal rendering:
       </label>
     </page>
     <page name="wavy_lattice" gui-text="Wavy lattice">
-      <image>wavy_lattice.svg</image>
+      <image>wavy_lattice.png</image>
       <param name="wl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
       <param name="wl_interval" type="int" min="0" max="1000" gui-text="Interval">18</param>
       <param name="wl_spacing" type="float" min="0" max="1000" gui-text="Spacing">3</param>
@@ -68,7 +68,7 @@ to have bends formed in them.
   <effect>
     <object-type>all</object-type>
     <effects-menu>
-       <submenu _name="Laser Tools"/>
+       <submenu _name="Render"/>
     </effects-menu>
   </effect>
   <script>

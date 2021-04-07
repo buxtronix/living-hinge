@@ -79,7 +79,7 @@ class StraightLatticeGenerator(Generator):
         super(StraightLatticeGenerator, self).__init__(*args)
         self.link_gap = link_gap
         start_end = self.p_offset - (self.p_interval - self.p_length)
-        if self.link_gap == 0:
+        if self.link_gap < 0.1:
             # Single line for 0 height gap.
             self.fixed_commands = ' h %f ' % self.p_length
             self.start_commands = ' h %f ' % start_end

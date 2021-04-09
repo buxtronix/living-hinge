@@ -6,7 +6,7 @@
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <param name="tab" type="notebook">
     <page name="straight_lattice" gui-text="Straight lattice">
-      <image>straight-lattice.png</image>
+			<image>images/straight-lattice.png</image>
       <param name="sl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
       <param name="sl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
       <param name="sl_gap" type="float" min="0" max="10" gui-text="Gap">1.0</param>
@@ -14,7 +14,7 @@
       </label>
     </page>
     <page name="diamond_lattice" gui-text="Diamond lattice">
-      <image>diamond-lattice.png</image>
+			<image>images/diamond-lattice.png</image>
       <param name="dl_length" type="float" min="0" max="1000" gui-text="Length">20</param>
       <param name="dl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
 			<param name="dl_curve" type="float" min="0" max="1.0" gui-text="Curve amount">0.5</param>
@@ -22,14 +22,14 @@
       </label>
     </page>
     <page name="cross_lattice" gui-text="Cross lattice">
-      <image>cross-lattice.png</image>
+			<image>images/cross-lattice.png</image>
       <param name="cl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
       <param name="cl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
       <label xml:space="preserve">
       </label>
     </page>
     <page name="wavy_lattice" gui-text="Wavy lattice">
-      <image>wavy-lattice.png</image>
+			<image>images/wavy-lattice.png</image>
       <param name="wl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
       <param name="wl_spacing" type="float" min="0" max="10" gui-text="Spacing">4</param>
       <label xml:space="preserve">
@@ -42,7 +42,7 @@ This extension renders Lattice Hinges, aka laser kerf bending.
 These patterns allow otherwise rigid materials (eg wood, acrylic)
 to have bends formed in them.
       </label>
-      <image>laser_bend.png</image>
+			<image>images/laser_bend.png</image>
       <label appearance="url">https://github.com/buxtronix/lattice-hinge</label>
     </page>
   </param>

@@ -10,7 +10,7 @@ This extension is primarily built for Inkscape 1.0 and above.
 
 For version 0.92 there is also a port in the Github `0.92` branch.
 
-![Screenshot](lattice_hinge.png "Screenshot of extension")
+![Screenshot](images/lattice_hinge.png "Screenshot of extension")
 
 ## Installation
 
@@ -53,16 +53,16 @@ to limit the pattern to exactly that path.
 The currently supported patterns are:
 
 Straight lattice:
-![Straight Lattice](straight_lattice.png "Straight Lattice")
+![Straight Lattice](images/straight_lattice.png "Straight Lattice")
 
 Diamond lattice:
-![Diamond Lattice](diamond_lattice.png "Diamond Lattice")
+![Diamond Lattice](images/diamond_lattice.png "Diamond Lattice")
 
-Honeycomb lattice:
-![Honeycomb Lattice](honeycomb_lattice.png "Honeycomb Lattice")
+Cross lattice:
+![Cross Lattice](images/cross_lattice.png "Cross Lattice")
 
 Wavy Lattice:
-![Wavy Lattice](wavy_lattice.png "Wavy Lattice")
+![Wavy Lattice](images/wavy_lattice.png "Wavy Lattice")
 
 ## Contributions
 

@@ -7,31 +7,31 @@
   <param name="tab" type="notebook">
     <page name="straight_lattice" gui-text="Straight lattice">
 			<image>images/straight-lattice.png</image>
-      <param name="sl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
-      <param name="sl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
-      <param name="sl_gap" type="float" min="0" max="10" gui-text="Gap">1.0</param>
+      <param name="sl_length" type="int" min="0" max="200" gui-text="Length" appearance="full">20</param>
+      <param name="sl_spacing" type="float" min="0" max="10" gui-text="Spacing" appearance="full">4</param>
+      <param name="sl_gap" type="float" min="0" max="10" gui-text="Gap" appearance="full">1.0</param>
       <label xml:space="preserve">
       </label>
     </page>
     <page name="diamond_lattice" gui-text="Diamond lattice">
 			<image>images/diamond-lattice.png</image>
-      <param name="dl_length" type="float" min="0" max="1000" gui-text="Length">20</param>
-      <param name="dl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
-			<param name="dl_curve" type="float" min="0" max="1.0" gui-text="Curve amount">0.5</param>
+      <param name="dl_length" type="int" min="0" max="200" gui-text="Length" appearance="full">20</param>
+      <param name="dl_spacing" type="float" min="0" max="10" gui-text="Spacing" appearance="full">4</param>
+			<param name="dl_curve" type="float" min="0" max="1.0" gui-text="Curve amount" appearance="full">0.5</param>
       <label xml:space="preserve">
       </label>
     </page>
     <page name="cross_lattice" gui-text="Cross lattice">
 			<image>images/cross-lattice.png</image>
-      <param name="cl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
-      <param name="cl_spacing" type="float" min="0" max="1000" gui-text="Spacing">4</param>
+      <param name="cl_length" type="int" min="0" max="200" gui-text="Length" appearance="full">20</param>
+      <param name="cl_spacing" type="float" min="0" max="10" gui-text="Spacing" appearance="full">4</param>
       <label xml:space="preserve">
       </label>
     </page>
     <page name="wavy_lattice" gui-text="Wavy lattice">
 			<image>images/wavy-lattice.png</image>
-      <param name="wl_length" type="int" min="0" max="1000" gui-text="Length">20</param>
-      <param name="wl_spacing" type="float" min="0" max="10" gui-text="Spacing">4</param>
+      <param name="wl_length" type="int" min="0" max="200" gui-text="Length" appearance="full">20</param>
+      <param name="wl_spacing" type="float" min="0" max="10" gui-text="Spacing" appearance="full">4</param>
       <label xml:space="preserve">
       </label>
     </page>

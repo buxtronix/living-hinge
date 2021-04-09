@@ -1,8 +1,8 @@
-# Inkscape lasercut lattice hinge extension
+# Inkscape lasercut living hinge extension
 
-This is an extension for Inkscape to render Lattice Hinges.
+This is an extension for Inkscape to render Living Hinges.
 
-Lattice hinges are patterns that can be laser cut into materials such
+Living hinges are patterns that can be laser cut into materials such
 as wood and acrylic, allowing them to be bent into surprisingly tight
 radii.
 
@@ -10,7 +10,7 @@ This extension is primarily built for Inkscape 1.0 and above.
 
 For version 0.92 there is also a port in the Github `0.92` branch.
 
-![Screenshot](images/lattice_hinge.png "Screenshot of extension")
+![Screenshot](images/living_hinge.png "Screenshot of extension")
 
 ## Installation
 
@@ -33,16 +33,24 @@ On windows it's usually:
 
 You will need to download the archive from the Github `0.92` branch.
 
-Download that archive, and extract the files `lattice_hinge.inx` and
-`lattice_hinge.py` into your extensions folder (see above for the location).
+Download that archive, and extract the files `living_hinge.inx` and
+`living_hinge.py` into your extensions folder (see above for the location).
 
 ## Usage
 
-The extension is found in `Extensions->Render->Lattice Hinge...`
+The extension is found in `Extensions->Render->Living Hinge...`
+
+Input the width and height of the desired pattern and then apply (or
+live preview).  
+If an object is currently selected, the extension will fill the object's
+bounding box instead of using the size inputs.
 
 Choose the type of pattern you'd like by selecting its tab. Adjust the
-parameters as needed. Input the width and height of the desired pattern
-and then apply (or live preview).
+parameters as needed. Play with the sliders in Live Preview mode
+to find the optimal values and click Apply to use it.
+
+The extension will round some of the parameters up or down in order to
+fill the desired area evenly.
 
 To get a better bounding box by the edge, you can draw a bounding path
 around the desired area afterwards, then select `Path->Intersection`

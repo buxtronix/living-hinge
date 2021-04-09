@@ -202,7 +202,7 @@ class WavyLatticeGenerator(Generator):
         return '%s height: %f type: wavy_lattice' % (text, self.e_height)
 
 
-class LatticeHingeEffect(inkex.EffectExtension):
+class LivingHingeEffect(inkex.EffectExtension):
     """
     Extension to create laser cut bend lattices.
     """
@@ -237,49 +237,49 @@ class LatticeHingeEffect(inkex.EffectExtension):
         """
         canvas = self.svg.get_current_layer()
         stroke_width = self.svg.unittouu('0.2mm')
-        if len(self.svg.selected) > 1:
-            raise inkex.AbortExtension('Select at most one object')
-        x = 0
-        y = 0
         self.options.width = self.convert(self.options.width)
         self.options.height = self.convert(self.options.height)
 
-        for elem in self.svg.selected.values():
-            # Determine width and height based on the selected object's bounding box.
-            bbox = elem.bounding_box()
-            self.options.width = bbox.width
-            self.options.height = bbox.height
-            x = bbox.x.minimum
-            y = bbox.y.minimum
-            break
+        def draw_one(x, y):
+          if self.options.tab == 'straight_lattice':
+              generator = StraightLatticeGenerator(
+                    x, y, self.options.width, self.options.height,
+                    stroke_width, canvas, self.convert(self.options.sl_length),
+                    self.convert(self.options.sl_spacing),
+                    link_gap=self.convert(self.options.sl_gap))
+          elif self.options.tab == 'diamond_lattice':
+            generator = DiamondLatticeGenerator(
+                    x, y, self.options.width, self.options.height,
+                    stroke_width, canvas, self.convert(self.options.dl_length),
+                    self.convert(self.options.dl_spacing),
+                    diamond_curve=self.options.dl_curve)
+          elif self.options.tab == 'cross_lattice':
+            generator = CrossLatticeGenerator(
+                    x, y, self.options.width, self.options.height,
+                    stroke_width, canvas, self.convert(self.options.cl_length),
+                    self.convert(self.options.cl_spacing))
+          elif self.options.tab == 'wavy_lattice':
+            generator = WavyLatticeGenerator(
+                    x, y, self.options.width, self.options.height,
+                    stroke_width, canvas, self.convert(self.options.wl_length),
+                    self.convert(self.options.wl_spacing))
+          else:
+            inkex.errormsg(_("Select a valid pattern tab before rendering."))
+            return
+          generator.generate()
 
-        if self.options.tab == 'straight_lattice':
-          generator = StraightLatticeGenerator(
-                  x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.convert(self.options.sl_length),
-                  self.convert(self.options.sl_spacing),
-                  link_gap=self.convert(self.options.sl_gap))
-        elif self.options.tab == 'diamond_lattice':
-          generator = DiamondLatticeGenerator(
-                  x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.convert(self.options.dl_length),
-                  self.convert(self.options.dl_spacing),
-                  diamond_curve=self.options.dl_curve)
-        elif self.options.tab == 'cross_lattice':
-          generator = CrossLatticeGenerator(
-                  x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.convert(self.options.cl_length),
-                  self.convert(self.options.cl_spacing))
-        elif self.options.tab == 'wavy_lattice':
-          generator = WavyLatticeGenerator(
-                  x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.convert(self.options.wl_length),
-                  self.convert(self.options.wl_spacing))
+        if not self.svg.selected:
+            draw_one(0, 0)
         else:
-          inkex.errormsg(_("Select a valid pattern tab before rendering."))
-          return
+            for elem in self.svg.selected.values():
+                # Determine width and height based on the selected object's bounding box.
+                bbox = elem.bounding_box()
+                self.options.width = bbox.width
+                self.options.height = bbox.height
+                x = bbox.x.minimum
+                y = bbox.y.minimum
+                draw_one(x, y)
 
-        generator.generate()
 
 # Create effect instance and apply it.
-LatticeHingeEffect().run()
+LivingHingeEffect().run()

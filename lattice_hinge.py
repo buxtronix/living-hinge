@@ -34,6 +34,10 @@ class Generator(object):
                 self.e_length, self.p_spacing)
 
     def generate(self):
+        # Round width/height to integer number of patterns.
+        self.e_length = self.width / round(self.width/self.e_length)
+        self.e_height = self.height / round(self.height/self.e_height)
+        self.prerender()
         style = {'stroke': '#ff0000', 'stroke-width': str(self.stroke_width), 'fill': 'none'}
         path_command = ''
         y = self.y
@@ -56,7 +60,9 @@ class StraightLatticeGenerator(Generator):
     def __init__(self, *args, link_gap=0):
         super(StraightLatticeGenerator, self).__init__(*args)
         self.link_gap = link_gap
+        self.e_height = 2*self.p_spacing
 
+    def prerender(self):
         self.e_height = 2*self.p_spacing
         w = self.e_length
         lg = self.link_gap
@@ -93,9 +99,11 @@ class DiamondLatticeGenerator(Generator):
         super(DiamondLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
         self.diamond_curve = diamond_curve
+
+    def prerender(self):
         h = self.e_height
         w = self.e_length
-        dc = diamond_curve *2
+        dc = self.diamond_curve *2
         self.fixed_commands = ' m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f ' % (
                 0, h/4,
 
@@ -136,6 +144,8 @@ class CrossLatticeGenerator(Generator):
     def __init__(self, *args):
         super(CrossLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
+
+    def prerender(self):
         self.fixed_commands = 'm %f,%f l %f,%f l %f,%f l %f,%f   m %f,%f l %f,%f l %f,%f l %f,%f  m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f'  % (
                     # Top
                     self.e_length/10, self.e_height*3/10,
@@ -169,6 +179,8 @@ class WavyLatticeGenerator(Generator):
     def __init__(self, *args, **kwargs):
         super(WavyLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
+
+    def prerender(self):
         h = self.e_height
         w = self.e_length
         self.fixed_commands = ' m %f,%f h %f c %f,%f %f,%f %f,%f h %f m %f,%f h %f c %f,%f %f,%f %f,%f h %f ' % (

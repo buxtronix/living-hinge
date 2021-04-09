@@ -48,7 +48,7 @@ to have bends formed in them.
   </param>
   <param name="width" type="float" min="0" max="10000" gui-text="Width">100</param>
   <param name="height" type="float" min="0" max="10000" gui-text="Height">100</param>
-  <label>If an object is currently selected, its width and height will be used instead.</label>
+  <label>If an object is currently selected, its bounding box will be filled instead.</label>
   <effect>
     <object-type>all</object-type>
     <effects-menu>

@@ -14,35 +14,35 @@ from simplestyle import *
 class Generator(object):
     """A generic generator, subclassed for each different lattice style."""
     def __init__(self, x, y, width, height, stroke_width, canvas,
-            p_length, p_spacing):
+            e_length, p_spacing):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.stroke_width = stroke_width
         self.canvas = canvas
-        self.p_length = p_length
+        self.e_length = e_length
+        self.e_height = 0  # Provided by sub-classes.
         self.p_spacing = p_spacing
         self.fixed_commands = ''
-        self.element_width = 20.0
 
     def draw_one(self, x, y):
         return 'M %f,%f %s' % (x, y, self.fixed_commands)
 
     def parameter_text(self):
         return 'Lattice Hinge params: length: %f spacing: %f' % (
-                self.p_length, self.p_spacing)
+                self.e_length, self.p_spacing)
 
     def generate(self):
         style = {'stroke': '#ff0000', 'stroke-width': str(self.stroke_width), 'fill': 'none'}
         path_command = ''
         y = self.y
-        while y < self.height:
+        while y < self.y + self.height:
           x = self.x
-          while x < self.width:
+          while x < self.x + self.width:
             path_command = '%s %s ' % (path_command, self.draw_one(x, y))
-            x += self.element_width
-          y += self.element_height
+            x += self.e_length
+          y += self.e_height
 
         link = self.canvas.add(inkex.PathElement())
         link.update(**{
@@ -57,8 +57,8 @@ class StraightLatticeGenerator(Generator):
         super(StraightLatticeGenerator, self).__init__(*args)
         self.link_gap = link_gap
 
-        self.element_height = 2*self.p_spacing
-        w = self.p_length
+        self.e_height = 2*self.p_spacing
+        w = self.e_length
         lg = self.link_gap
 
         if lg < 0.1:
@@ -66,7 +66,7 @@ class StraightLatticeGenerator(Generator):
             self.fixed_commands = ' m %f,%f h %f m %f,%f h %f m %f,%f h %f' % (
                     w/5, 0,
                     w*3/5,
-                    0-w*4/5, self.element_height/2,
+                    0-w*4/5, self.e_height/2,
                     w*2/5,
                     w/5, 0,
                     w*2/5)
@@ -75,11 +75,11 @@ class StraightLatticeGenerator(Generator):
                     ' m %f,%f h %f v %f h %f'
                     ' m %f,%f h %f v %f h %f v %f'
                     ' m %f,%f h %f v %f h %f ') % (
-                            0, self.element_height/2,
+                            0, self.e_height/2,
                             w*2/5, lg, 0-w*2/5,
-                            w/8, 0-lg-self.element_height/2,
+                            w/8, 0-lg-self.e_height/2,
                             w*3/4, lg, 0-w*3/4, 0-lg,
-                            w*7/8, lg+self.element_height/2,
+                            w*7/8, lg+self.e_height/2,
                             0-w*2/5, 0-lg, w*2/5)
     
 
@@ -91,11 +91,10 @@ class StraightLatticeGenerator(Generator):
 class DiamondLatticeGenerator(Generator):
     def __init__(self, *args, diamond_height=0, diamond_curve=0.5):
         super(DiamondLatticeGenerator, self).__init__(*args)
-        self.element_height = self.p_spacing
+        self.e_height = self.p_spacing
         self.diamond_curve = diamond_curve
-        self.element_width = self.p_length
-        h = self.element_height
-        w = self.element_width
+        h = self.e_height
+        w = self.e_length
         dc = diamond_curve *2
         self.fixed_commands = ' m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f ' % (
                 0, h/4,
@@ -130,50 +129,48 @@ class DiamondLatticeGenerator(Generator):
 
     def parameter_text(self):
         text = super(DiamondLatticeGenerator, self).parameter_text()
-        return '%s height: %f type: diamond_lattice' % (text, self.element_height)
+        return '%s height: %f type: diamond_lattice' % (text, self.e_height)
 
 
 class CrossLatticeGenerator(Generator):
     def __init__(self, *args):
         super(CrossLatticeGenerator, self).__init__(*args)
-        self.element_height = self.p_spacing
-        self.element_width = self.p_length
+        self.e_height = self.p_spacing
         self.fixed_commands = 'm %f,%f l %f,%f l %f,%f l %f,%f   m %f,%f l %f,%f l %f,%f l %f,%f  m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f'  % (
                     # Top
-                    self.element_width/10, self.element_height*3/10,
-                    self.element_width/5, 0-self.element_height*3/10,
-                    self.element_width*2/5, 0,
-                    self.element_width/5, self.element_height*3/10,
+                    self.e_length/10, self.e_height*3/10,
+                    self.e_length/5, 0-self.e_height*3/10,
+                    self.e_length*2/5, 0,
+                    self.e_length/5, self.e_height*3/10,
                     # Bottom
-                    0, self.element_height*4/10,
-                    0-self.element_width/5, self.element_height*3/10,
-                    0-self.element_width*2/5, 0,
-                    0-self.element_width/5, 0-self.element_height*3/10,
+                    0, self.e_height*4/10,
+                    0-self.e_length/5, self.e_height*3/10,
+                    0-self.e_length*2/5, 0,
+                    0-self.e_length/5, 0-self.e_height*3/10,
                     # Left
-                    0-self.element_width/10, 0-self.element_height*2/10,
-                    self.element_width/5, 0,
-                    self.element_width/5, 0-self.element_height*3/10,
-                    0-self.element_width/5, self.element_height*3/10,
-                    self.element_width/5, self.element_height*3/10,
+                    0-self.e_length/10, 0-self.e_height*2/10,
+                    self.e_length/5, 0,
+                    self.e_length/5, 0-self.e_height*3/10,
+                    0-self.e_length/5, self.e_height*3/10,
+                    self.e_length/5, self.e_height*3/10,
                     # Right
-                    self.element_width/5, 0,
-                    self.element_width/5, 0-self.element_height*3/10,
-                    0-self.element_width/5, 0-self.element_height*3/10,
-                    self.element_width/5, self.element_height*3/10,
-                    self.element_width/5, 0)
+                    self.e_length/5, 0,
+                    self.e_length/5, 0-self.e_height*3/10,
+                    0-self.e_length/5, 0-self.e_height*3/10,
+                    self.e_length/5, self.e_height*3/10,
+                    self.e_length/5, 0)
 
     def parameter_text(self):
         text = super(CrossLatticeGenerator, self).parameter_text()
-        return '%s height: %f type: cross_lattice' % (text, self.element_height)
+        return '%s height: %f type: cross_lattice' % (text, self.e_height)
 
 
 class WavyLatticeGenerator(Generator):
     def __init__(self, *args, **kwargs):
         super(WavyLatticeGenerator, self).__init__(*args)
-        self.element_height = self.p_spacing
-        h = self.element_height
-        w = self.p_length
-        self.element_width = self.p_length
+        self.e_height = self.p_spacing
+        h = self.e_height
+        w = self.e_length
         self.fixed_commands = ' m %f,%f h %f c %f,%f %f,%f %f,%f h %f m %f,%f h %f c %f,%f %f,%f %f,%f h %f ' % (
             0, h,      # Start of element (left)
             w*0.1,          # Short horiz line.
@@ -190,7 +187,7 @@ class WavyLatticeGenerator(Generator):
 
     def parameter_text(self):
         text = super(WavyLatticeGenerator, self).parameter_text()
-        return '%s height: %f type: wavy_lattice' % (text, self.element_height)
+        return '%s height: %f type: wavy_lattice' % (text, self.e_height)
 
 
 class LatticeHingeEffect(inkex.EffectExtension):
@@ -229,11 +226,12 @@ class LatticeHingeEffect(inkex.EffectExtension):
         x = 0
         y = 0
         for elem in self.svg.selected.values():
+            # Determine width and height based on the selected object's bounding box.
             bbox = elem.bounding_box()
             self.options.width = bbox.width
             self.options.height = bbox.height
-#            x = bbox.x
-#            y = bbox.y
+            x = bbox.x.minimum
+            y = bbox.y.minimum
             break
 
         if self.options.tab == 'straight_lattice':

@@ -35,8 +35,8 @@ class Generator(object):
 
     def generate(self):
         # Round width/height to integer number of patterns.
-        self.e_length = self.width / round(self.width/self.e_length)
-        self.e_height = self.height / round(self.height/self.e_height)
+        self.e_length = self.width / max(round(self.width/self.e_length), 1.0)
+        self.e_height = self.height / max(round(self.height/self.e_height), 1.0)
         self.prerender()
         style = {'stroke': '#ff0000', 'stroke-width': str(self.stroke_width), 'fill': 'none'}
         path_command = ''
@@ -208,6 +208,7 @@ class LatticeHingeEffect(inkex.EffectExtension):
     """
     def add_arguments(self, pars):
       pars.add_argument("--tab", help="Bend pattern to generate")
+      pars.add_argument("--unit", help="Units for dimensions")
 
       pars.add_argument("--width", type=float, default=300, help="Width of pattern")
       pars.add_argument("--height", type=float, default=100, help="Height of pattern")
@@ -227,6 +228,9 @@ class LatticeHingeEffect(inkex.EffectExtension):
       pars.add_argument("--wl_interval", type=int, default=30, help="Interval between links")
       pars.add_argument("--wl_spacing", type=float, default=0.5, help="Spacing between links")
 
+    def convert(self, value):
+        return self.svg.unittouu(str(value) + self.options.unit)
+
     def effect(self):
         """
         Effect behaviour.
@@ -237,6 +241,9 @@ class LatticeHingeEffect(inkex.EffectExtension):
             raise inkex.AbortExtension('Select at most one object')
         x = 0
         y = 0
+        self.options.width = self.convert(self.options.width)
+        self.options.height = self.convert(self.options.height)
+
         for elem in self.svg.selected.values():
             # Determine width and height based on the selected object's bounding box.
             bbox = elem.bounding_box()
@@ -249,25 +256,25 @@ class LatticeHingeEffect(inkex.EffectExtension):
         if self.options.tab == 'straight_lattice':
           generator = StraightLatticeGenerator(
                   x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.options.sl_length,
-                  self.options.sl_spacing,
-                  link_gap=self.options.sl_gap)
+                  stroke_width, canvas, self.convert(self.options.sl_length),
+                  self.convert(self.options.sl_spacing),
+                  link_gap=self.convert(self.options.sl_gap))
         elif self.options.tab == 'diamond_lattice':
           generator = DiamondLatticeGenerator(
                   x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.options.dl_length,
-                  self.options.dl_spacing,
+                  stroke_width, canvas, self.convert(self.options.dl_length),
+                  self.convert(self.options.dl_spacing),
                   diamond_curve=self.options.dl_curve)
         elif self.options.tab == 'cross_lattice':
           generator = CrossLatticeGenerator(
                   x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.options.cl_length,
-                  self.options.cl_spacing)
+                  stroke_width, canvas, self.convert(self.options.cl_length),
+                  self.convert(self.options.cl_spacing))
         elif self.options.tab == 'wavy_lattice':
           generator = WavyLatticeGenerator(
                   x, y, self.options.width, self.options.height,
-                  stroke_width, canvas, self.options.wl_length,
-                  self.options.wl_spacing)
+                  stroke_width, canvas, self.convert(self.options.wl_length),
+                  self.convert(self.options.wl_spacing))
         else:
           inkex.errormsg(_("Select a valid pattern tab before rendering."))
           return

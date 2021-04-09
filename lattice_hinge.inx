@@ -48,6 +48,11 @@ to have bends formed in them.
   </param>
   <param name="width" type="float" min="0" max="10000" gui-text="Width">100</param>
   <param name="height" type="float" min="0" max="10000" gui-text="Height">100</param>
+  <param name="unit" gui-text="Unit" type="optiongroup" appearance="minimal">
+    <option value="mm">mm</option>
+    <option value="cm">cm</option>
+    <option value="in">in</option>
+  </param>
   <label>If an object is currently selected, its bounding box will be filled instead.</label>
   <effect>
     <object-type>all</object-type>

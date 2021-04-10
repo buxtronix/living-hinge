@@ -124,21 +124,23 @@ class DiamondLatticeGenerator(Generator):
         h = self.e_height
         w = self.e_length
         # Diamond curve
-        dc = self.diamond_curve * 2
-        # Absolute value of it
-        adc = abs(dc)
-        # Vertical curve portion (for -ve dc values)
-        vc = min(-1 * dc, 0)
+        dc = 0-self.diamond_curve
+        # Horiz handle length.
+        hhl = abs(dc * w * 0.2)
+        # Endpoint horiz handle length
+        ehhl = hhl if dc > 0 else 0
+        # Vert handle length
+        vhl = abs(dc * h / 8) if dc < 0 else 0
         # Left
         self.fixed_commands = " m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
             0, h / 4,
 
-            adc * w * 0.1, 0,
-            w * 0.4 - (dc * w * 0.1), h / 4,
+            hhl, 0,
+            w * 0.4 - ehhl, h / 4 - vhl,
             w * 0.4, h / 4,
 
-            0 - (dc * w * 0.1), 0,
-            0 - (w * 0.4 - dc * w * 0.1), h / 4,
+            0 - ehhl, vhl,
+            0 - (w * 0.4 - hhl), h / 4,
             0 - w * 0.4, h / 4,
         )
 
@@ -147,40 +149,38 @@ class DiamondLatticeGenerator(Generator):
             self.fixed_commands,
             w, 0 - h / 2,
 
-            0 - adc * w * 0.1, 0,
-            0 - (w * 0.4 - dc * w * 0.1), h / 4,
+            0 - hhl, 0,
+            0 - (w * 0.4 - ehhl), h / 4 - vhl,
             0 - w * 0.4, h / 4,
 
-            dc * w * 0.1, 0,
-            w * 0.4 - dc * w * 0.1, h / 4,
+            ehhl, vhl,
+            w * 0.4 - hhl, h / 4,
             w * 0.4, h / 4,
         )
 
         # Bottom
-        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
+        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f s %f,%f %f,%f " % (
             self.fixed_commands,
             0 - w * 0.9, h / 4,
 
-            dc * w * 0.1, 0,
-            w * 0.4 - adc * w * 0.1, 0 - h / 4,
+            ehhl, 0 - vhl,
+            w * 0.4 - hhl, 0 - h / 4,
             w * 0.4, 0 - h / 4,
 
-            adc * w * 0.1, 0,
-            w * 0.4 - dc * w * 0.1, h / 4,
+            w * 0.4 - ehhl, h / 4 - vhl,
             w * 0.4, h / 4,
         )
 
         # Top
-        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
+        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f s %f,%f %f,%f " % (
             self.fixed_commands,
             0 - w * 0.8, 0 - h,
 
-            dc * w * 0.1, 0,
-            w * 0.4 - adc * w * 0.1, h / 4,
+            ehhl, vhl,
+            w * 0.4 - hhl, h / 4,
             w * 0.4, h / 4,
 
-            adc * w / 10, 0,
-            w * 0.4 - dc * w * 0.1, 0 - h / 4,
+            w * 0.4 - ehhl, 0 - h / 4 + vhl,
             w * 0.4, 0 - h / 4,
         )
 

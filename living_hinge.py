@@ -123,76 +123,65 @@ class DiamondLatticeGenerator(Generator):
     def prerender(self):
         h = self.e_height
         w = self.e_length
+        # Diamond curve
         dc = self.diamond_curve * 2
+        # Absolute value of it
+        adc = abs(dc)
+        # Vertical curve portion (for -ve dc values)
+        vc = min(-1 * dc, 0)
+        # Left
         self.fixed_commands = " m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
-            0,
-            h / 4,
-            dc * w * 0.1,
-            0,
-            w * 0.4 - dc * w * 0.1,
-            h / 4,
-            w * 0.4,
-            h / 4,
-            0 - dc * w / 10,
-            0,
-            0 - (w * 0.4 - dc * w * 0.1),
-            h / 4,
-            0 - w * 2 / 5,
-            h / 4,
+            0, h / 4,
+
+            adc * w * 0.1, 0,
+            w * 0.4 - (dc * w * 0.1), h / 4,
+            w * 0.4, h / 4,
+
+            0 - (dc * w * 0.1), 0,
+            0 - (w * 0.4 - dc * w * 0.1), h / 4,
+            0 - w * 0.4, h / 4,
         )
 
+        # Right
         self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
             self.fixed_commands,
-            w,
-            0 - h / 2,
-            0 - dc * w * 0.1,
-            0,
-            0 - (w * 0.4 - dc * w * 0.1),
-            h / 4,
-            0 - w * 2 / 5,
-            h / 4,
-            dc * w / 10,
-            0,
-            w * 0.4 - dc * w * 0.1,
-            h / 4,
-            w * 2 / 5,
-            h / 4,
+            w, 0 - h / 2,
+
+            0 - adc * w * 0.1, 0,
+            0 - (w * 0.4 - dc * w * 0.1), h / 4,
+            0 - w * 0.4, h / 4,
+
+            dc * w * 0.1, 0,
+            w * 0.4 - dc * w * 0.1, h / 4,
+            w * 0.4, h / 4,
         )
 
+        # Bottom
         self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
             self.fixed_commands,
-            0 - w * 9 / 10,
-            h / 4,
-            dc * w * 0.1,
-            0,
-            w * 0.4 - dc * w * 0.1,
-            0 - h / 4,
-            w * 2 / 5,
-            0 - h / 4,
-            dc * w / 10,
-            0,
-            w * 0.4 - dc * w * 0.1,
-            h / 4,
-            w * 2 / 5,
-            h / 4,
+            0 - w * 0.9, h / 4,
+
+            dc * w * 0.1, 0,
+            w * 0.4 - adc * w * 0.1, 0 - h / 4,
+            w * 0.4, 0 - h / 4,
+
+            adc * w * 0.1, 0,
+            w * 0.4 - dc * w * 0.1, h / 4,
+            w * 0.4, h / 4,
         )
 
+        # Top
         self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
             self.fixed_commands,
-            0 - w * 4 / 5,
-            0 - h,
-            dc * w * 0.1,
-            0,
-            w * 0.4 - dc * w * 0.1,
-            h / 4,
-            w * 2 / 5,
-            h / 4,
-            dc * w / 10,
-            0,
-            w * 0.4 - dc * w * 0.1,
-            0 - h / 4,
-            w * 2 / 5,
-            0 - h / 4,
+            0 - w * 0.8, 0 - h,
+
+            dc * w * 0.1, 0,
+            w * 0.4 - adc * w * 0.1, h / 4,
+            w * 0.4, h / 4,
+
+            adc * w / 10, 0,
+            w * 0.4 - dc * w * 0.1, 0 - h / 4,
+            w * 0.4, 0 - h / 4,
         )
 
     def draw_one(self, x, y):

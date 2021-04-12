@@ -13,16 +13,21 @@ import inkex
 from simplestyle import *
 
 
+cut_colour = '#ff0000'
+engrave_colour = '#0000ff'
+
+
 class Generator(object):
     """A generic generator, subclassed for each different lattice style."""
 
-    def __init__(self, x, y, width, height, stroke_width, canvas, e_length, p_spacing):
+    def __init__(self, x, y, width, height, stroke_width, svg, e_length, p_spacing):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.stroke_width = stroke_width
-        self.canvas = canvas
+        self.svg = svg
+        self.canvas = self.svg.get_current_layer()
         self.e_length = e_length
         self.e_height = 0  # Provided by sub-classes.
         self.p_spacing = p_spacing
@@ -32,18 +37,104 @@ class Generator(object):
         return "M %f,%f %s" % (x, y, self.fixed_commands)
 
     def parameter_text(self):
-        return "Lattice Hinge params: length: %f spacing: %f" % (
+        return "length: %.1f spacing: %.f" % (
             self.e_length,
             self.p_spacing,
         )
 
-    def generate(self):
+    def draw_swatch(self):
+        border = self.canvas.add(inkex.PathElement())
+        # Curve radius
+        cr = self.svg.unittouu('10mm')
+        # Swatch padding
+        sp = self.svg.unittouu('30mm')
+        # Handle length
+        hl = cr/2
+        path_command = (
+                'm %f,%f l %f,%f c %f,%f %f,%f %f,%f'
+                'l %f,%f c %f,%f %f,%f %f,%f '
+                'l %f,%f c %f,%f %f,%f %f,%f '
+                'l %f,%f c %f,%f %f,%f %f,%f ') % (
+                cr, 0,
+
+                self.width - 2*cr, 0,
+
+                hl, 0,
+                cr, cr-hl,
+                cr, cr,
+
+                0, self.height - 2*cr + 1.5*sp,
+
+                0, cr/2,
+                0-cr+hl, cr,
+                0-cr, cr,
+
+                0-self.width + 2*cr, 0,
+
+                0-hl, 0,
+                0-cr, 0-cr+hl,
+                0-cr, 0-cr,
+
+                0, 0-self.height - 1.5*sp + 2*cr,
+
+                0, 0-hl,
+                cr-hl, 0-cr,
+                cr, 0-cr
+                )
+
+        style = {
+            "stroke": cut_colour,
+            "stroke-width": str(self.stroke_width),
+            "fill": "none",
+        }
+        border.update(**{"style": style, "inkscape:label": "lattice_border", "d": path_command})
+
+        c = self.canvas.add(inkex.Circle(
+            style=str(inkex.Style(style)),
+            cx=str(cr),
+            cy=str(cr),
+            r=str(self.svg.unittouu('4mm'))))
+
+        self.y += sp
+
+        text_style = {
+                'fill': engrave_colour,
+                'font-size': '9px',
+                'font-family': 'sans-serif',
+                'text-anchor': 'middle',
+                'text-align': 'center',
+                }
+        text = self.canvas.add(
+                inkex.TextElement(
+                    style=str(inkex.Style(text_style)),
+                    x=str(self.x + self.width/2),
+                    y=str(self.y - sp/2)))
+        text.text = "Style: %s" % self.name
+
+        text_style['font-size'] = "3px"
+        text = self.canvas.add(
+                inkex.TextElement(
+                    style=str(inkex.Style(text_style)),
+                    x=str(self.x + self.width/2),
+                    y=str(self.y - sp/4)))
+        text.text = self.parameter_text()
+
+        text = self.canvas.add(
+                inkex.TextElement(
+                    style=str(inkex.Style(text_style)),
+                    x=str(self.x + self.width/2),
+                    y=str(self.y +self.height + sp/4)))
+        text.text = "https://github.com/buxtronix/living-hinge"
+
+    def generate(self, swatch):
+        if swatch:
+            self.draw_swatch()
         # Round width/height to integer number of patterns.
         self.e_length = self.width / max(round(self.width / self.e_length), 1.0)
         self.e_height = self.height / max(round(self.height / self.e_height), 1.0)
         self.prerender()
         style = {
-            "stroke": "#ff0000",
+            "stroke": cut_colour,
             "stroke-width": str(self.stroke_width),
             "fill": "none",
         }
@@ -58,7 +149,7 @@ class Generator(object):
 
         link = self.canvas.add(inkex.PathElement())
         link.update(**{"style": style, "inkscape:label": "lattice", "d": path_command})
-        link.description(self.parameter_text())
+        link.description("%s hinge %s" % (self.name, self.parameter_text()))
 
 
 class StraightLatticeGenerator(Generator):
@@ -66,6 +157,7 @@ class StraightLatticeGenerator(Generator):
         super(StraightLatticeGenerator, self).__init__(*args)
         self.link_gap = link_gap
         self.e_height = 2 * self.p_spacing
+        self.name = "straight"
 
     def prerender(self):
         self.e_height = 2 * self.p_spacing
@@ -111,7 +203,7 @@ class StraightLatticeGenerator(Generator):
 
     def parameter_text(self):
         text = super(StraightLatticeGenerator, self).parameter_text()
-        return "%s link_gap: %f type: straight_lattice" % (text, self.link_gap)
+        return "%s element_height: %.1f" % (text, self.link_gap)
 
 
 class DiamondLatticeGenerator(Generator):
@@ -119,6 +211,7 @@ class DiamondLatticeGenerator(Generator):
         super(DiamondLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
         self.diamond_curve = diamond_curve
+        self.name = "diamond"
 
     def prerender(self):
         h = self.e_height
@@ -144,24 +237,10 @@ class DiamondLatticeGenerator(Generator):
             0 - w * 0.4, h / 4,
         )
 
-        # Right
-        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
-            self.fixed_commands,
-            w, 0 - h / 2,
-
-            0 - hhl, 0,
-            0 - (w * 0.4 - ehhl), h / 4 - vhl,
-            0 - w * 0.4, h / 4,
-
-            ehhl, vhl,
-            w * 0.4 - hhl, h / 4,
-            w * 0.4, h / 4,
-        )
-
         # Bottom
         self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f s %f,%f %f,%f " % (
             self.fixed_commands,
-            0 - w * 0.9, h / 4,
+            w * 0.1, h / 4,
 
             ehhl, 0 - vhl,
             w * 0.4 - hhl, 0 - h / 4,
@@ -184,77 +263,73 @@ class DiamondLatticeGenerator(Generator):
             w * 0.4, 0 - h / 4,
         )
 
+        # Right
+        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
+            self.fixed_commands,
+            w * 0.1, h *0.75,
+
+            0 - hhl, 0,
+            (0 - w * 0.4) + ehhl,  0 - h / 4 + vhl,
+            0 - w * 0.4, 0 - h / 4,
+
+            ehhl, 0 - vhl,
+            w * 0.4 - hhl, 0 - h / 4,
+            w * 0.4, 0 - h / 4,
+        )
+
     def draw_one(self, x, y):
         return "M %f,%f %s" % (x, y, self.fixed_commands)
 
     def parameter_text(self):
         text = super(DiamondLatticeGenerator, self).parameter_text()
-        return "%s height: %f type: diamond_lattice" % (text, self.e_height)
+        return "%s curve: %.1f" % (text, self.diamond_curve)
 
 
 class CrossLatticeGenerator(Generator):
     def __init__(self, *args):
         super(CrossLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
+        self.name = "cross"
 
     def prerender(self):
+        l = self.e_length
+        h = self.e_height
         self.fixed_commands = (
+            "m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f"
             "m %f,%f l %f,%f l %f,%f l %f,%f "
             "m %f,%f l %f,%f l %f,%f l %f,%f "
-            "m %f,%f l %f,%f l %f,%f "
-            "m %f,%f l %f,%f m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f"
+            "m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f"
         ) % (
-            # Top
-            self.e_length / 10,
-            self.e_height * 3 / 10,
-            self.e_length / 5,
-            0 - self.e_height * 3 / 10,
-            self.e_length * 2 / 5,
-            0,
-            self.e_length / 5,
-            self.e_height * 3 / 10,
-            # Bottom
-            0,
-            self.e_height * 4 / 10,
-            0 - self.e_length / 5,
-            self.e_height * 3 / 10,
-            0 - self.e_length * 2 / 5,
-            0,
-            0 - self.e_length / 5,
-            0 - self.e_height * 3 / 10,
             # Left
-            0 - self.e_length / 10,
-            0 - self.e_height * 2 / 10,
-            self.e_length / 5,
-            0,
-            self.e_length / 5,
-            0 - self.e_height * 3 / 10,
-            0 - self.e_length / 5,
-            self.e_height * 3 / 10,
-            self.e_length / 5,
-            self.e_height * 3 / 10,
+            0, h * 0.5,
+            l * 0.2, 0,
+            l * 0.2, 0 - h * 0.3,
+            0 - l * 0.2, h * 0.3,
+            l * 0.2, h * 0.3,
+            # Top
+            0 - l * 0.3, 0 - h * 0.5,
+            l * 0.2, 0 - h * 0.3,
+            l * 0.4, 0,
+            l * 0.2, h * 0.3,
+            # Bottom
+            0, h * 0.4,
+            0 - l * 0.2, h * 0.3,
+            0 - l * 0.4, 0,
+            0 - l * 0.2, 0 - h * 0.3,
             # Right
-            self.e_length / 5,
-            0,
-            self.e_length / 5,
-            0 - self.e_height * 3 / 10,
-            0 - self.e_length / 5,
-            0 - self.e_height * 3 / 10,
-            self.e_length / 5,
-            self.e_height * 3 / 10,
-            self.e_length / 5,
-            0,
+            l * 0.5, 0 - h * 0.5,
+            l * 0.2, h * 0.3,
+            0 - l * 0.2, h * 0.3,
+            l * 0.2, 0 - h * 0.3,
+            l * 0.2, 0,
         )
-
-    def parameter_text(self):
-        text = super(CrossLatticeGenerator, self).parameter_text()
-        return "%s height: %f type: cross_lattice" % (text, self.e_height)
 
 
 class WavyLatticeGenerator(Generator):
     def __init__(self, *args, **kwargs):
         super(WavyLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
+        self.name = "wavy"
 
     def prerender(self):
         h = self.e_height
@@ -285,10 +360,6 @@ class WavyLatticeGenerator(Generator):
             w * 0.1,
         )  # End horiz line.
 
-    def parameter_text(self):
-        text = super(WavyLatticeGenerator, self).parameter_text()
-        return "%s height: %f type: wavy_lattice" % (text, self.e_height)
-
 
 class LivingHingeEffect(inkex.EffectExtension):
     """
@@ -298,6 +369,7 @@ class LivingHingeEffect(inkex.EffectExtension):
     def add_arguments(self, pars):
         pars.add_argument("--tab", help="Bend pattern to generate")
         pars.add_argument("--unit", help="Units for dimensions")
+        pars.add_argument("--swatch", type=inkex.Boolean, help="Draw as a swatch card")
 
         pars.add_argument("--width", type=float, default=300, help="Width of pattern")
         pars.add_argument("--height", type=float, default=100, help="Height of pattern")
@@ -334,11 +406,13 @@ class LivingHingeEffect(inkex.EffectExtension):
     def convert(self, value):
         return self.svg.unittouu(str(value) + self.options.unit)
 
+    def convertmm(self, value):
+        return self.svg.unittouu('%fmm' % value)
+
     def effect(self):
         """
         Effect behaviour.
         """
-        canvas = self.svg.get_current_layer()
         stroke_width = self.svg.unittouu("0.2mm")
         self.options.width = self.convert(self.options.width)
         self.options.height = self.convert(self.options.height)
@@ -351,10 +425,10 @@ class LivingHingeEffect(inkex.EffectExtension):
                     self.options.width,
                     self.options.height,
                     stroke_width,
-                    canvas,
-                    self.convert(self.options.sl_length),
-                    self.convert(self.options.sl_spacing),
-                    link_gap=self.convert(self.options.sl_gap),
+                    self.svg,
+                    self.convertmm(self.options.sl_length),
+                    self.convertmm(self.options.sl_spacing),
+                    link_gap=self.convertmm(self.options.sl_gap),
                 )
             elif self.options.tab == "diamond_lattice":
                 generator = DiamondLatticeGenerator(
@@ -363,9 +437,9 @@ class LivingHingeEffect(inkex.EffectExtension):
                     self.options.width,
                     self.options.height,
                     stroke_width,
-                    canvas,
-                    self.convert(self.options.dl_length),
-                    self.convert(self.options.dl_spacing),
+                    self.svg,
+                    self.convertmm(self.options.dl_length),
+                    self.convertmm(self.options.dl_spacing),
                     diamond_curve=self.options.dl_curve,
                 )
             elif self.options.tab == "cross_lattice":
@@ -375,9 +449,9 @@ class LivingHingeEffect(inkex.EffectExtension):
                     self.options.width,
                     self.options.height,
                     stroke_width,
-                    canvas,
-                    self.convert(self.options.cl_length),
-                    self.convert(self.options.cl_spacing),
+                    self.svg,
+                    self.convertmm(self.options.cl_length),
+                    self.convertmm(self.options.cl_spacing),
                 )
             elif self.options.tab == "wavy_lattice":
                 generator = WavyLatticeGenerator(
@@ -386,16 +460,16 @@ class LivingHingeEffect(inkex.EffectExtension):
                     self.options.width,
                     self.options.height,
                     stroke_width,
-                    canvas,
-                    self.convert(self.options.wl_length),
-                    self.convert(self.options.wl_spacing),
+                    self.svg,
+                    self.convertmm(self.options.wl_length),
+                    self.convertmm(self.options.wl_spacing),
                 )
             else:
                 inkex.errormsg(_("Select a valid pattern tab before rendering."))
                 return
-            generator.generate()
+            generator.generate(self.options.swatch)
 
-        if not self.svg.selected:
+        if self.options.swatch or not self.svg.selected:
             draw_one(0, 0)
         else:
             for elem in self.svg.selected.values():

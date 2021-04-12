@@ -56,6 +56,9 @@ To get a better bounding box by the edge, you can draw a bounding path
 around the desired area afterwards, then select `Path->Intersection`
 to limit the pattern to exactly that path.
 
+Selecting *Draw Swatch Card* will render a complete sample swatch ready
+for cutting.
+
 ## Patterns
 
 The currently supported patterns are:

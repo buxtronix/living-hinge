@@ -1,6 +1,6 @@
-# Inkscape lasercut lattice hinge extension
+# Inkscape lasercut living hinge extension
 
-This is an extension for Inkscape to render Lattice Hinges.
+This is an extension for Inkscape to render Living Hinges.
 
 Lattice hinges are patterns that can be laser cut into materials such
 as wood and acrylic, allowing them to be bent into surprisingly tight

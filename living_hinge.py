@@ -114,13 +114,14 @@ class WavyLatticeGenerator(Generator):
         return 'M %f,%f %s' % (x, y, self.fixed_commands)
 
 
-class LatticeHingeEffect(inkex.Effect):
+class LivingHingeEffect(inkex.Effect):
     """
     Extension to create laser cut bend lattices.
     """
     def __init__(self):
         inkex.Effect.__init__(self)
         self.OptionParser.add_option("--tab", type="string", dest="tab", help="Bend pattern to generate")
+        self.OptionParser.add_option("--swatch", type=bool, dest="swatch", help="Render a swatch card")
 
         self.OptionParser.add_option("--width", type=float, default=300, help="Width of pattern")
         self.OptionParser.add_option("--height", type=float, default=100, help="Height of pattern")
@@ -198,4 +199,4 @@ class LatticeHingeEffect(inkex.Effect):
         generator.generate()
 
 # Create effect instance and apply it.
-LatticeHingeEffect().affect()
+LivingHingeEffect().affect()

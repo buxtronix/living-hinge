@@ -64,16 +64,16 @@ for cutting.
 The currently supported patterns are:
 
 Straight lattice:
-![Straight Lattice](images/straight_lattice.png "Straight Lattice")
+![Straight Lattice](images/straight-lattice.png "Straight Lattice")
 
 Diamond lattice:
-![Diamond Lattice](images/diamond_lattice.png "Diamond Lattice")
+![Diamond Lattice](images/diamond-lattice.png "Diamond Lattice")
 
 Cross lattice:
-![Cross Lattice](images/cross_lattice.png "Cross Lattice")
+![Cross Lattice](images/cross-lattice.png "Cross Lattice")
 
 Wavy Lattice:
-![Wavy Lattice](images/wavy_lattice.png "Wavy Lattice")
+![Wavy Lattice](images/wavy-lattice.png "Wavy Lattice")
 
 ## Contributions
 

@@ -3,200 +3,505 @@
 # These two lines are only needed if you don't put the script directly into
 # the installation directory
 import sys
-sys.path.append('/usr/share/inkscape/extensions')
+
+sys.path.append("/usr/share/inkscape/extensions")
 
 # We will use the inkex module with the predefined Effect base class.
 import inkex
+
 # The simplestyle module provides functions for style parsing.
 from simplestyle import *
+from simpletransform import *
+
+cut_colour = "#ff0000"
+engrave_colour = "#0000ff"
 
 
 class Generator(object):
     """A generic generator, subclassed for each different lattice style."""
-    def __init__(self, width, height, offset, stroke_width, canvas,
-            p_length, p_interval, p_spacing, p_offset):
+
+    def __init__(self, x, y, width, height, stroke_width, parent, e_length, p_spacing):
+        self.x = x
+        self.y = y
         self.width = width
         self.height = height
-        self.offset = offset
         self.stroke_width = stroke_width
-        self.canvas = canvas
-        self.p_length = p_length
-        self.p_interval = p_interval
+        self.parent = parent
+        self.canvas = self.parent.current_layer
+        self.e_length = e_length
+        self.e_height = 0  # Provided by sub-classes.
         self.p_spacing = p_spacing
-        self.p_offset = p_offset
+        self.fixed_commands = ""
+
+    def draw_one(self, x, y):
+        return "M %f,%f %s" % (x, y, self.fixed_commands)
+
+    def parameter_text(self):
+        return "length: %.1f spacing: %.f" % (
+            self.e_length,
+            self.p_spacing,
+        )
+
+    def draw_swatch(self):
+        # Curve radius
+        cr = self.parent.unittouu("10mm")
+        # Swatch padding
+        sp = self.parent.unittouu("30mm")
+        # Handle length
+        hl = cr / 2
+        path_command = (
+            "m %f,%f l %f,%f c %f,%f %f,%f %f,%f"
+            "l %f,%f c %f,%f %f,%f %f,%f "
+            "l %f,%f c %f,%f %f,%f %f,%f "
+            "l %f,%f c %f,%f %f,%f %f,%f "
+        ) % (
+            cr, 0,
+            self.width - 2 * cr, 0,
+            hl, 0,
+            cr, cr - hl,
+            cr, cr,
+
+            0, self.height - 2 * cr + 1.5 * sp,
+            0, cr / 2,
+            0 - cr + hl, cr,
+            0 - cr, cr,
+
+            0 - self.width + 2 * cr, 0,
+            0 - hl, 0,
+            0 - cr, 0 - cr + hl,
+            0 - cr, 0 - cr,
+
+            0, 0 - self.height - 1.5 * sp + 2 * cr,
+            0, 0 - hl,
+            cr - hl, 0 - cr,
+            cr, 0 - cr,
+        )
+
+        style = {
+            "stroke": cut_colour,
+            "stroke-width": str(self.stroke_width),
+            "fill": "none",
+        }
+        attrs = {
+            "style": simplestyle.FormatStyle(style),
+            inkex.addNS("label", "inkscape"): "lattice_border",
+            "d": path_command,
+        }
+        inkex.etree.SubElement(self.canvas, inkex.addNS("path", "svg"), attrs)
+
+        attrs["cx"] = str(cr)
+        attrs["cy"] = str(cr)
+        attrs["r"] = str(self.parent.unittouu("4mm"))
+        c = inkex.etree.SubElement(self.parent, inkex.addNS("circle", "svg"), attrs)
+
+        self.y += sp
+
+        text_style = {
+            "fill": engrave_colour,
+            "font-size": "9px",
+            "font-family": "sans-serif",
+            "text-anchor": "middle",
+            "text-align": "center",
+        }
+        text = inkex.etree.SubElement(
+            self.parent,
+            inkex.addNS("text", "svg"),
+            {
+                style: simplestyle.FormatStyle(text_style),
+                x: str(self.x + self.width / 2),
+                y: str(self.y - sp / 2),
+            },
+        )
+        text.text = "Style: %s" % self.name
+
+        text_style["font-size"] = "3px"
+        text = inkex.etree.SubElement(
+            self.parent,
+            inkex.addNS("text", "svg"),
+            {
+                style: simplestyle.FormatStyle(text_style),
+                x: str(self.x + self.width / 2),
+                y: str(self.y - sp / 4),
+            },
+        )
+        text.text = self.parameter_text()
+
+        text = inkex.etree.SubElement(
+            self.parent,
+            inkex.addNS("text", "svg"),
+            {
+                style: simplestyle.FormatStyle(text_style),
+                x: str(self.x + self.width / 2),
+                y: str(self.y + self.height + sp / 4),
+            },
+        )
+        text.text = "https://github.com/buxtronix/living-hinge"
 
     def generate(self):
-        style = {'stroke': '#ff0000', 'stroke-width': str(self.stroke_width), 'fill': 'none'}
-        path_command = ''
-        offs = 0
-        y = 0
-        while y < self.height:
-          x = offs
-          while x < self.width:
-            path_command = '%s %s' % (path_command, self.draw_one(x, y))
-            x += self.p_interval
-          offs += self.p_offset
-          offs = offs % self.p_interval
-          y += self.p_spacing
+        if swatch:
+            self.draw_swatch()
+        # Round width/height to integer number of patterns.
+        self.e_length = self.width / max(round(self.width / self.e_length), 1.0)
+        self.e_height = self.height / max(round(self.height / self.e_height), 1.0)
+        self.prerender()
+        style = {
+            "stroke": cut_colour,
+            "stroke-width": str(self.stroke_width),
+            "fill": "none",
+        }
+        path_command = ""
+        y = self.y
+        while y < self.y + self.height:
+            x = self.x
+            while x < self.x + self.width:
+                path_command = "%s %s " % (path_command, self.draw_one(x, y))
+                x += self.e_length
+            y += self.e_height
 
         attrs = {
-          'style': formatStyle(style),
-          inkex.addNS('label', 'inkscape'): 'lattice',
-          'd': path_command}
-        inkex.etree.SubElement(self.canvas, inkex.addNS('path', 'svg'), attrs)
+            "style": simplestyle.FormatStyle(style),
+            inkex.addNS("label", "inkscape"): "lattice",
+            "d": path_command,
+        }
+        inkex.etree.SubElement(self.canvas, inkex.addNS("path", "svg"), attrs)
 
 
 class StraightLatticeGenerator(Generator):
     def __init__(self, *args, **kwargs):
         super(StraightLatticeGenerator, self).__init__(*args)
-        self.link_gap = kwargs['link_gap']
-        if self.link_gap == 0:
-            # Single line for 0 height gap.
-            self.fixed_commands = ' h %f ' % self.p_length
-        else:
-            self.fixed_commands = 'l %f,%f l %f,%f l %f,%f l %f,%f ' % (
-              self.p_length, 0,
-              0, self.link_gap,
-              0-self.p_length, 0,
-              0, 0-self.link_gap)
+        self.link_gap = kwargs["link_gap"]
+        self.e_height = 2 * self.p_spacing
+        self.name = "straight"
 
-    def draw_one(self, x, y):
-        return 'M %f,%f %s' % (x, y, self.fixed_commands)
+    def prerender(self):
+        self.e_height = 2 * self.p_spacing
+        w = self.e_length
+        lg = self.link_gap
+
+        if lg < 0.1:
+            # Single line for 0 height gap.
+            self.fixed_commands = " m %f,%f h %f m %f,%f h %f m %f,%f h %f" % (
+                w / 5, 0,
+                w * 3 / 5, 0 - w * 4 / 5,
+                self.e_height / 2, w * 2 / 5,
+                w / 5, 0,
+                w * 2 / 5,)
+        else:
+            self.fixed_commands = (
+                " m %f,%f h %f v %f h %f"
+                " m %f,%f h %f v %f h %f v %f"
+                " m %f,%f h %f v %f h %f "
+            ) % (
+                0, self.e_height / 2,
+                w * 2 / 5,
+                lg, 0 - w * 2 / 5, w / 8,
+                0 - lg - self.e_height / 2, w * 3 / 4,
+                lg, 0 - w * 3 / 4,
+                0 - lg, w * 7 / 8,
+                lg + self.e_height / 2, 0 - w * 2 / 5,
+                0 - lg, w * 2 / 5,
+            )
+
+    def parameter_text(self):
+        text = super(StraightLatticeGenerator, self).parameter_text()
+        return "%s element_height: %.1f" % (text, self.link_gap)
 
 
 class DiamondLatticeGenerator(Generator):
     def __init__(self, *args, **kwargs):
         super(DiamondLatticeGenerator, self).__init__(*args)
-        self.diamond_height = kwargs['diamond_height']
-        self.fixed_commands = 'l %f,%f l %f,%f l %f,%f l %f,%f ' % (
-                self.p_length/2, 0-self.diamond_height/2,
-                self.p_length/2, self.diamond_height/2,
-                0-self.p_length/2, self.diamond_height/2,
-                0-self.p_length/2, 0-self.diamond_height/2)
+        self.e_height = self.p_spacing
+        self.diamond_curve = kwargs["diamond_curve"]
+        self.name = "diamond"
+
+    def prerender(self):
+        h = self.e_height
+        w = self.e_length
+        # Diamond curve
+        dc = 0 - self.diamond_curve
+        # Horiz handle length.
+        hhl = abs(dc * w * 0.2)
+        # Endpoint horiz handle length
+        ehhl = hhl if dc > 0 else 0
+        # Vert handle length
+        vhl = abs(dc * h / 8) if dc < 0 else 0
+        # Left
+        self.fixed_commands = " m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
+            0, h / 4,
+            hhl, 0,
+            w * 0.4 - ehhl, h / 4 - vhl,
+            w * 0.4, h / 4,
+            0 - ehhl, vhl,
+            0 - (w * 0.4 - hhl), h / 4,
+            0 - w * 0.4, h / 4,
+        )
+
+        # Bottom
+        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f s %f,%f %f,%f " % (
+            self.fixed_commands,
+            w * 0.1, h / 4,
+            ehhl, 0 - vhl,
+            w * 0.4 - hhl, 0 - h / 4,
+            w * 0.4, 0 - h / 4,
+            w * 0.4 - ehhl, h / 4 - vhl,
+            w * 0.4, h / 4,
+        )
+
+        # Top
+        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f s %f,%f %f,%f " % (
+            self.fixed_commands,
+            0 - w * 0.8, 0 - h,
+            ehhl, vhl,
+            w * 0.4 - hhl, h / 4,
+            w * 0.4, h / 4,
+            w * 0.4 - ehhl, 0 - h / 4 + vhl,
+            w * 0.4, 0 - h / 4,
+        )
+
+        # Right
+        self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
+            self.fixed_commands,
+            w * 0.1, h * 0.75,
+            0 - hhl, 0,
+            (0 - w * 0.4) + ehhl, 0 - h / 4 + vhl,
+            0 - w * 0.4, 0 - h / 4,
+            ehhl, 0 - vhl,
+            w * 0.4 - hhl, 0 - h / 4,
+            w * 0.4, 0 - h / 4,
+        )
 
     def draw_one(self, x, y):
-        return 'M %f,%f %s' % (x, y+self.diamond_height/2, self.fixed_commands)
+        return "M %f,%f %s" % (x, y, self.fixed_commands)
+
+    def parameter_text(self):
+        text = super(DiamondLatticeGenerator, self).parameter_text()
+        return "%s curve: %.1f" % (text, self.diamond_curve)
 
 
-class HoneycombLatticeGenerator(Generator):
-    def __init__(self, *args, **kwargs):
-        super(HoneycombLatticeGenerator, self).__init__(*args)
-        self.comb_height = kwargs['comb_height']
-        line_length = self.p_length * kwargs['comb_ratio']
-        arrow_length = self.p_length * (1-kwargs['comb_ratio']) * 0.5
+class CrossLatticeGenerator(Generator):
+    def __init__(self, *args):
+        super(CrossLatticeGenerator, self).__init__(*args)
+        self.e_height = self.p_spacing
+        self.name = "cross"
+
+    def prerender(self):
+        l = self.e_length
+        h = self.e_height
         self.fixed_commands = (
-                'l %f,%f l %f,%f l %f,%f l %f,%f l %f,%f '
-                'l %f,%f l %f,%f') % (
-                        arrow_length, self.comb_height/2,
-                        0-arrow_length, self.comb_height/2,
-                        arrow_length, 0-self.comb_height/2,
-                        line_length, 0,
-                        arrow_length, 0-self.comb_height/2,
-                        0-arrow_length, self.comb_height/2,
-                        arrow_length, self.comb_height/2)
-
-    def draw_one(self, x, y):
-        return 'M %f,%f %s' % (x, y, self.fixed_commands)
+            "m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f"
+            "m %f,%f l %f,%f l %f,%f l %f,%f "
+            "m %f,%f l %f,%f l %f,%f l %f,%f "
+            "m %f,%f l %f,%f l %f,%f m %f,%f l %f,%f"
+        ) % (
+            # Left
+            0, h * 0.5,
+            l * 0.2, 0,
+            l * 0.2, 0 - h * 0.3,
+            0 - l * 0.2, h * 0.3,
+            l * 0.2, h * 0.3,
+            # Top
+            0 - l * 0.3, 0 - h * 0.5,
+            l * 0.2, 0 - h * 0.3,
+            l * 0.4, 0,
+            l * 0.2, h * 0.3,
+            # Bottom
+            0, h * 0.4,
+            0 - l * 0.2, h * 0.3,
+            0 - l * 0.4, 0,
+            0 - l * 0.2, 0 - h * 0.3,
+            # Right
+            l * 0.5, 0 - h * 0.5,
+            l * 0.2, h * 0.3,
+            0 - l * 0.2, h * 0.3,
+            l * 0.2, 0 - h * 0.3,
+            l * 0.2, 0,
+        )
 
 
 class WavyLatticeGenerator(Generator):
     def __init__(self, *args, **kwargs):
         super(WavyLatticeGenerator, self).__init__(*args)
-        self.wave_height = kwargs['wave_height']
-        self.fixed_commands = ' h %f c 4,0 3,4 %f,%f h %f c 2,0 1.5,-2 %f,%f h %f' % (
-                self.p_length*0.2,
-            self.p_length*0.25, self.wave_height,
-            self.p_length*0.3,
-            self.p_length*0.2, 0-self.wave_height/2,
-            self.p_length*0.175)
+        self.e_height = self.p_spacing
+        self.name = "wavy"
 
-    def draw_one(self, x, y):
-        return 'M %f,%f %s' % (x, y, self.fixed_commands)
+    def prerender(self):
+        h = self.e_height
+        w = self.e_length
+        self.fixed_commands = (
+            " m %f,%f h %f c %f,%f %f,%f %f,%f h %f "
+            "m %f,%f h %f c %f,%f %f,%f %f,%f h %f "
+        ) % (
+            0, h,  # Start of element (left)
+            w * 0.1,  # Short horiz line.
+            w * 0.1, 0,  # Control 1
+            w * 3 / 40, 0 - h / 2,  # Control 2
+            w * 0.2, 0 - h / 2,  # Curve top.
+            w * 0.175,  # Top horiz line.
+            0 - w * 0.1, 0 - h / 2,  # Move to higher line.
+            w * 0.3,  # Long higher horiz line.
+            w / 5, 0,  # Control 1
+            w / 10, h,  # Control 2
+            w * 0.25, h,  # Curve down.
+            w * 0.1,
+        )  # End horiz line.
 
 
 class LivingHingeEffect(inkex.Effect):
     """
     Extension to create laser cut bend lattices.
     """
+
     def __init__(self):
         inkex.Effect.__init__(self)
-        self.OptionParser.add_option("--tab", type="string", dest="tab", help="Bend pattern to generate")
-        self.OptionParser.add_option("--swatch", type=bool, dest="swatch", help="Render a swatch card")
+        self.OptionParser.add_option(
+            "--tab", type="string", dest="tab", help="Bend pattern to generate"
+        )
+        self.OptionParser.add_option(
+            "--swatch", type=bool, dest="swatch", help="Render a swatch card"
+        )
 
-        self.OptionParser.add_option("--width", type=float, default=300, help="Width of pattern")
-        self.OptionParser.add_option("--height", type=float, default=100, help="Height of pattern")
+        self.OptionParser.add_option(
+            "--width", type=float, default=300, help="Width of pattern"
+        )
+        self.OptionParser.add_option(
+            "--height", type=float, default=100, help="Height of pattern"
+        )
 
-        self.OptionParser.add_option("--sl_length", type=int, default=20, help="Length of links")
-        self.OptionParser.add_option("--sl_gap", type=float, default=0.5, help="Gap between links")
-        self.OptionParser.add_option("--sl_interval", type=int, default=30, help="Interval between links")
-        self.OptionParser.add_option("--sl_spacing", type=int, default=20, help="Spacing of links")
+        self.OptionParser.add_option(
+            "--sl_length", type=int, default=20, help="Length of links"
+        )
+        self.OptionParser.add_option(
+            "--sl_gap", type=float, default=0.5, help="Gap between links"
+        )
+        self.OptionParser.add_option(
+            "--sl_interval", type=int, default=30, help="Interval between links"
+        )
+        self.OptionParser.add_option(
+            "--sl_spacing", type=int, default=20, help="Spacing of links"
+        )
 
-        self.OptionParser.add_option("--dl_length", type=int, default=24, help="Length of diamonds")
-        self.OptionParser.add_option("--dl_height", type=float, default=4, help="Height of diamonds")
-        self.OptionParser.add_option("--dl_interval", type=int, default=28, help="Interval between diamonds")
-        self.OptionParser.add_option("--dl_spacing", type=int, default=4, help="Spacing of diamonds")
+        self.OptionParser.add_option(
+            "--dl_length", type=int, default=24, help="Length of diamonds"
+        )
+        self.OptionParser.add_option(
+            "--dl_height", type=float, default=4, help="Height of diamonds"
+        )
+        self.OptionParser.add_option(
+            "--dl_interval", type=int, default=28, help="Interval between diamonds"
+        )
+        self.OptionParser.add_option(
+            "--dl_spacing", type=int, default=4, help="Spacing of diamonds"
+        )
 
-        self.OptionParser.add_option("--hl_length", type=int, default=24, help="Length of combs")
-        self.OptionParser.add_option("--hl_height", type=float, default=4, help="Height of combs")
-        self.OptionParser.add_option("--hl_interval", type=int, default=28, help="Interval between combs")
-        self.OptionParser.add_option("--hl_spacing", type=int, default=4, help="Spacing of combs")
-        self.OptionParser.add_option("--hl_ratio", type=float, default=0.5, help="Element arrow ratio")
+        self.OptionParser.add_option(
+            "--hl_length", type=int, default=24, help="Length of combs"
+        )
+        self.OptionParser.add_option(
+            "--hl_height", type=float, default=4, help="Height of combs"
+        )
+        self.OptionParser.add_option(
+            "--hl_interval", type=int, default=28, help="Interval between combs"
+        )
+        self.OptionParser.add_option(
+            "--hl_spacing", type=int, default=4, help="Spacing of combs"
+        )
+        self.OptionParser.add_option(
+            "--hl_ratio", type=float, default=0.5, help="Element arrow ratio"
+        )
 
-        self.OptionParser.add_option("--wl_length", type=int, default=20, help="Length of links")
-        self.OptionParser.add_option("--wl_height", type=float, default=0.5, help="Height of links")
-        self.OptionParser.add_option("--wl_interval", type=int, default=30, help="Interval between links")
-        self.OptionParser.add_option("--wl_spacing", type=float, default=20, help="Spacing of links")
+        self.OptionParser.add_option(
+            "--wl_length", type=int, default=20, help="Length of links"
+        )
+        self.OptionParser.add_option(
+            "--wl_height", type=float, default=0.5, help="Height of links"
+        )
+        self.OptionParser.add_option(
+            "--wl_interval", type=int, default=30, help="Interval between links"
+        )
+        self.OptionParser.add_option(
+            "--wl_spacing", type=float, default=20, help="Spacing of links"
+        )
+
+    def convert(self, value):
+        return self.unittouu(str(value) + self.options.unit)
+
+    def convertmm(self, value):
+        return self.unittouu("%fmm" % value)
 
     def effect(self):
         """
         Effect behaviour.
         """
+        stroke_width = self.unittouu("0.2mm")
+        self.options.width = self.convert(self.options.width)
+        self.options.height = self.convert(self.options.height)
+
+        def draw_one(x, y):
+            if self.options.tab == "straight_lattice":
+                generator = StraightLatticeGenerator(
+                    x,
+                    y,
+                    self.options.width,
+                    self.options.height,
+                    stroke_width,
+                    self,
+                    self.convertmm(self.options.sl_length),
+                    self.convertmm(self.options.sl_spacing),
+                    link_gap=self.convertmm(self.options.sl_gap),
+                )
+            elif self.options.tab == "diamond_lattice":
+                generator = DiamondLatticeGenerator(
+                    x,
+                    y,
+                    self.options.width,
+                    self.options.height,
+                    stroke_width,
+                    self,
+                    self.convertmm(self.options.dl_length),
+                    self.convertmm(self.options.dl_spacing),
+                    diamond_curve=self.options.dl_curve,
+                )
+            elif self.options.tab == "cross_lattice":
+                generator = CrossLatticeGenerator(
+                    x,
+                    y,
+                    self.options.width,
+                    self.options.height,
+                    stroke_width,
+                    self,
+                    self.convertmm(self.options.cl_length),
+                    self.convertmm(self.options.cl_spacing),
+                )
+            elif self.options.tab == "wavy_lattice":
+                generator = WavyLatticeGenerator(
+                    x,
+                    y,
+                    self.options.width,
+                    self.options.height,
+                    stroke_width,
+                    self,
+                    self.convertmm(self.options.wl_length),
+                    self.convertmm(self.options.wl_spacing),
+                )
+            else:
+                inkex.errormsg(_("Select a valid pattern tab before rendering."))
+                return
+            generator.generate(self.options.swatch)
+
         self.svg = self.document.getroot()
-        print 'Selected: %s\nSelection: %s\n', self.svg.selected, self.svg.selection)
-        if self.svg.selection:
-            node = self.svg.selection.values()[0]
-            print 'Select node: %s' % node
-            self.options.width = node.width
-            self.options.height = node.height
-        else:
-            canvas = self.current_layer
-        offset = 0
-        stroke_width = self.unittouu('2px')
 
-        if self.options.tab == '"straight_lattice"':
-          generator = StraightLatticeGenerator(
-                  self.options.width, self.options.height, offset,
-                  stroke_width, canvas, self.options.sl_length,
-                  self.options.sl_interval, self.options.sl_spacing,
-                  self.options.sl_interval/2,
-                  link_gap=self.options.sl_gap)
-        elif self.options.tab == '"diamond_lattice"':
-          generator = DiamondLatticeGenerator(
-                  self.options.width, self.options.height, offset,
-                  stroke_width, canvas, self.options.dl_length,
-                  self.options.dl_interval, self.options.dl_spacing,
-                  self.options.dl_interval/2,
-                  diamond_height=self.options.dl_height)
-        elif self.options.tab == '"honeycomb_lattice"':
-          generator = HoneycombLatticeGenerator(
-                  self.options.width, self.options.height, offset,
-                  stroke_width, canvas, self.options.hl_length,
-                  self.options.hl_interval, self.options.hl_spacing,
-                  self.options.hl_interval/2,
-                  comb_height=self.options.hl_height,
-                  comb_ratio=self.options.hl_ratio)
-        elif self.options.tab == '"wavy_lattice"':
-          generator = WavyLatticeGenerator(
-                  self.options.width, self.options.height, offset,
-                  stroke_width, canvas, self.options.wl_length,
-                  self.options.wl_interval, self.options.wl_spacing,
-                  self.options.wl_interval,
-                  wave_height=self.options.wl_height)
+        if self.options.swatch or not self.selected:
+            draw_one(0, 0)
         else:
-          inkex.errormsg(_("Select a valid pattern tab before rendering."))
-          return
+            for id, elem in self.selected.items():
+                # Determine width and height based on the selected object's bounding box.
+                bbox = computeBBox([elem])
+                self.options.width = bbox[1] - bbox[0]
+                self.options.height = bbox[3] - bbox[2]
+                x = bbox[0]
+                y = bbox[2]
+                draw_one(x, y)
 
-        generator.generate()
 
 # Create effect instance and apply it.
 LivingHingeEffect().affect()

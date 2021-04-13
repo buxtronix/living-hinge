@@ -1,29 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>Lattice Hinges</_name>
+  <_name>Living Hinges</_name>
   <id>net.buxtronix.living_hinge</id>
   <dependency type="executable" location="extensions">living_hinge.py</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
   <param name="tab" type="notebook">
     <page name="straight_lattice" gui-text="Straight lattice">
-	    <image>images/straight_lattice.png</image>
       <param name="sl_length" type="int" min="0" max="200" gui-text="Length of elements">20</param>
       <param name="sl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing">4</param>
       <param name="sl_gap" type="float" min="0" max="10" gui-text="Element height">1.0</param>
     </page>
     <page name="diamond_lattice" gui-text="Diamond lattice">
-	    <image>images/diamond_lattice.png</image>
       <param name="dl_length" type="int" min="0" max="200" gui-text="Length of elements">20</param>
       <param name="dl_spacing" type="float" min="0" max="1000" gui-text="Vertical element spacing">4</param>
       <param name="dl_curve" type="float" min="-1.0" max="1.0" gui-text="Curve of each element">0.5</param>
     </page>
     <page name="cross_lattice" gui-text="Cross lattice">
-	    <image>images/cross_lattice.png</image>
       <param name="hl_length" type="int" min="0" max="200" gui-text="Length of each element">20</param>
       <param name="hl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing">4</param>
     </page>
     <page name="wavy_lattice" gui-text="Wavy lattice">
-      <image>wavy_lattice.svg</image>
       <param name="wl_length" type="int" min="0" max="200" gui-text="Length of elements">20</param>
       <param name="wl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing">4.0</param>
     </page>

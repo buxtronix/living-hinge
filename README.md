@@ -6,17 +6,18 @@ Living hinges are patterns that can be laser cut into materials such
 as wood and acrylic, allowing them to be bent into surprisingly tight
 radii.
 
-This extension is primarily built for Inkscape 1.0 and above.
-
-For version 0.92 there is also a port in the Github `0.92` branch.
+This extension is primarily built for Inkscape 1.0 and above, but there
+is also a 0.92+ release.
 
 ![Screenshot](images/living_hinge.png "Screenshot of extension")
 
 ## Installation
 
+For details see the [wiki.](https://github.com/buxtronix/living-hinge/wiki)
+
 ### Inkscape 1.0+
 
-Download the archive and extract it such that all of the files are
+Download the release archive and extract it such that all of the files are
 contained in a *sub-folder* of your extensions folder.
 
 Your extensions folder can be found at `Edit->Preferences->System->User Extensions`
@@ -27,14 +28,15 @@ On Linux, this is usually:
 
 On windows it's usually:
 
-`c:\Users\<username>\AppData\Roaming\inkscape/extensions`
+`c:\Users\<username>\AppData\Roaming\inkscape\extensions`
 
 ### Inkscape 0.92
 
-You will need to download the archive from the Github `0.92` branch.
-
-Download that archive, and extract the files `living_hinge.inx` and
-`living_hinge.py` into your extensions folder (see above for the location).
+Download the 0.92 release archive, and extract the files `living_hinge.inx` and
+`living_hinge.py` into your extensions folder (see above for the location). Do not
+put them in a subfolder.
+The 0.92 release is functionally identical, however the extension dialog does not
+display some elements such as sliders and images.
 
 ## Usage
 

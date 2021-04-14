@@ -153,9 +153,9 @@ class Generator(object):
 
 
 class StraightLatticeGenerator(Generator):
-    def __init__(self, *args, link_gap=0):
+    def __init__(self, *args, **kwargs):
         super(StraightLatticeGenerator, self).__init__(*args)
-        self.link_gap = link_gap
+        self.link_gap = kwargs['link_gap']
         self.e_height = 2 * self.p_spacing
         self.name = "straight"
 
@@ -207,10 +207,10 @@ class StraightLatticeGenerator(Generator):
 
 
 class DiamondLatticeGenerator(Generator):
-    def __init__(self, *args, diamond_height=0, diamond_curve=0.5):
+    def __init__(self, *args, **kwargs):
         super(DiamondLatticeGenerator, self).__init__(*args)
         self.e_height = self.p_spacing
-        self.diamond_curve = diamond_curve
+        self.diamond_curve = kwargs['diamond_curve']
         self.name = "diamond"
 
     def prerender(self):

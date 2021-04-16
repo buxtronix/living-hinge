@@ -8,8 +8,8 @@
     <page name="straight_lattice" gui-text="Straight lattice">
 			<image>images/straight-lattice.png</image>
       <param name="sl_length" type="int" min="0" max="200" gui-text="Length of elements" appearance="full">20</param>
-      <param name="sl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing" appearance="full">4</param>
-      <param name="sl_gap" type="float" min="0" max="10" gui-text="Element height" appearance="full">1.0</param>
+      <param name="sl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing" appearance="full">2</param>
+      <param name="sl_gap" type="float" min="0" max="10" gui-text="Element height" appearance="full">0</param>
       <label xml:space="preserve">
       </label>
     </page>
@@ -24,13 +24,13 @@
     <page name="cross_lattice" gui-text="Cross lattice">
 			<image>images/cross-lattice.png</image>
       <param name="cl_length" type="int" min="0" max="200" gui-text="Length of elements" appearance="full">20</param>
-      <param name="cl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing" appearance="full">4</param>
+      <param name="cl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing" appearance="full">6</param>
       <label xml:space="preserve">
       </label>
     </page>
     <page name="wavy_lattice" gui-text="Wavy lattice">
 			<image>images/wavy-lattice.png</image>
-      <param name="wl_length" type="int" min="0" max="200" gui-text="Length of elements" appearance="full">20</param>
+      <param name="wl_length" type="int" min="0" max="200" gui-text="Length of elements" appearance="full">29</param>
       <param name="wl_spacing" type="float" min="0" max="10" gui-text="Vertical element spacing" appearance="full">4</param>
       <label xml:space="preserve">
       </label>

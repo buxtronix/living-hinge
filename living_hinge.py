@@ -167,14 +167,13 @@ class StraightLatticeGenerator(Generator):
         if lg < 0.1:
             # Single line for 0 height gap.
             self.fixed_commands = " m %f,%f h %f m %f,%f h %f m %f,%f h %f" % (
-                w / 5,
-                0,
-                w * 3 / 5,
-                0 - w * 4 / 5,
-                self.e_height / 2,
+                0, self.e_height / 2,
                 w * 2 / 5,
-                w / 5,
-                0,
+
+                0 - w / 5, 0 - self.e_height / 2,
+                w * 3 / 5,
+
+                0 - w / 5, self.e_height / 2,
                 w * 2 / 5,
             )
         else:
@@ -338,27 +337,24 @@ class WavyLatticeGenerator(Generator):
             " m %f,%f h %f c %f,%f %f,%f %f,%f h %f "
             "m %f,%f h %f c %f,%f %f,%f %f,%f h %f "
         ) % (
-            0,
-            h,  # Start of element (left)
+            0, h,  # Start of element (left)
             w * 0.1,  # Short horiz line.
-            w * 0.1,
-            0,  # Control 1
-            w * 3 / 40,
-            0 - h / 2,  # Control 2
-            w * 0.2,
-            0 - h / 2,  # Curve top.
+
+            w * 0.1, 0,  # Control 1
+            w * 3 / 40, 0 - h / 2,  # Control 2
+            w * 0.2, 0 - h / 2,  # Curve top.
+
             w * 0.175,  # Top horiz line.
-            0 - w * 0.1,
-            0 - h / 2,  # Move to higher line.
+
+            0 - w * 0.1, 0 - h / 2,  # Move to higher line.
             w * 0.3,  # Long higher horiz line.
-            w / 5,
-            0,  # Control 1
-            w / 10,
-            h,  # Control 2
-            w * 0.25,
-            h,  # Curve down.
-            w * 0.1,
-        )  # End horiz line.
+
+            w / 5, 0,  # Control 1
+            w / 10, h,  # Control 2
+            w * 0.25, h,  # Curve down.
+
+            w * 0.075, # End horiz line.
+        ) 
 
 
 class LivingHingeEffect(inkex.EffectExtension):
@@ -392,7 +388,7 @@ class LivingHingeEffect(inkex.EffectExtension):
 
         pars.add_argument("--cl_length", type=float, default=24, help="Length of combs")
         pars.add_argument(
-            "--cl_spacing", type=float, default=4, help="Spacing of combs"
+            "--cl_spacing", type=float, default=6, help="Spacing of combs"
         )
 
         pars.add_argument("--wl_length", type=int, default=20, help="Length of links")

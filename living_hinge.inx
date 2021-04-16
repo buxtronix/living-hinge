@@ -39,13 +39,9 @@
       <label xml:space="preserve">
 This extension renders Living Hinges, aka lattice hinges aka laser kerf bending.
 	      
-These patterns allow otherwise rigid materials (eg wood, acrylic)
-to have bends formed in them.
-
-Length and Spacing dimensions are rounded to ensure an even fill of the
-width and height.
+These patterns allow otherwise rigid materials (eg wood, acrylic) to have bends formed in them.
       </label>
-			<image>images/laser_bend.png</image>
+      <image>images/about.png</image>
       <label appearance="url">https://github.com/buxtronix/living-hinge</label>
     </page>
   </param>

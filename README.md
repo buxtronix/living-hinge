@@ -6,6 +6,8 @@ Living hinges are patterns that can be laser cut into materials such
 as wood and acrylic, allowing them to be bent into surprisingly tight
 radii.
 
+![Samples](images/hinges.png "Sample swatches")
+
 This extension is primarily built for Inkscape 1.0 and above, but there
 is also a 0.92+ release.
 

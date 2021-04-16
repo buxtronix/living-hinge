@@ -83,7 +83,7 @@ class Generator(object):
             "fill": "none",
         }
         attrs = {
-            "style": simplestyle.FormatStyle(style),
+            "style": simplestyle.formatStyle(style),
             inkex.addNS("label", "inkscape"): "lattice_border",
             "d": path_command,
         }
@@ -92,7 +92,7 @@ class Generator(object):
         attrs["cx"] = str(cr)
         attrs["cy"] = str(cr)
         attrs["r"] = str(self.parent.unittouu("4mm"))
-        c = inkex.etree.SubElement(self.parent, inkex.addNS("circle", "svg"), attrs)
+        c = inkex.etree.SubElement(self.canvas, inkex.addNS("circle", "svg"), attrs)
 
         self.y += sp
 
@@ -104,40 +104,40 @@ class Generator(object):
             "text-align": "center",
         }
         text = inkex.etree.SubElement(
-            self.parent,
+            self.canvas,
             inkex.addNS("text", "svg"),
             {
-                style: simplestyle.FormatStyle(text_style),
-                x: str(self.x + self.width / 2),
-                y: str(self.y - sp / 2),
+                "style": simplestyle.formatStyle(text_style),
+                "x": str(self.x + self.width / 2),
+                "y": str(self.y - sp / 2),
             },
         )
         text.text = "Style: %s" % self.name
 
         text_style["font-size"] = "3px"
         text = inkex.etree.SubElement(
-            self.parent,
+            self.canvas,
             inkex.addNS("text", "svg"),
             {
-                style: simplestyle.FormatStyle(text_style),
-                x: str(self.x + self.width / 2),
-                y: str(self.y - sp / 4),
+                "style": simplestyle.formatStyle(text_style),
+                "x": str(self.x + self.width / 2),
+                "y": str(self.y - sp / 4),
             },
         )
         text.text = self.parameter_text()
 
         text = inkex.etree.SubElement(
-            self.parent,
+            self.canvas,
             inkex.addNS("text", "svg"),
             {
-                style: simplestyle.FormatStyle(text_style),
-                x: str(self.x + self.width / 2),
-                y: str(self.y + self.height + sp / 4),
+                "style": simplestyle.formatStyle(text_style),
+                "x": str(self.x + self.width / 2),
+                "y": str(self.y + self.height + sp / 4),
             },
         )
         text.text = "https://github.com/buxtronix/living-hinge"
 
-    def generate(self):
+    def generate(self, swatch):
         if swatch:
             self.draw_swatch()
         # Round width/height to integer number of patterns.
@@ -159,7 +159,7 @@ class Generator(object):
             y += self.e_height
 
         attrs = {
-            "style": simplestyle.FormatStyle(style),
+            "style": simplestyle.formatStyle(style),
             inkex.addNS("label", "inkscape"): "lattice",
             "d": path_command,
         }
@@ -357,7 +357,10 @@ class LivingHingeEffect(inkex.Effect):
             "--tab", type="string", dest="tab", help="Bend pattern to generate"
         )
         self.OptionParser.add_option(
-            "--swatch", type=bool, dest="swatch", help="Render a swatch card"
+            "--swatch", type="inkbool", dest="swatch", help="Render a swatch card"
+        )
+        self.OptionParser.add_option(
+            "--unit", type="string", dest="unit", help="Unit of dimensions"
         )
 
         self.OptionParser.add_option(
@@ -374,52 +377,34 @@ class LivingHingeEffect(inkex.Effect):
             "--sl_gap", type=float, default=0.5, help="Gap between links"
         )
         self.OptionParser.add_option(
-            "--sl_interval", type=int, default=30, help="Interval between links"
-        )
-        self.OptionParser.add_option(
-            "--sl_spacing", type=int, default=20, help="Spacing of links"
+            "--sl_spacing", type=float, default=20, help="Spacing of links"
         )
 
         self.OptionParser.add_option(
-            "--dl_length", type=int, default=24, help="Length of diamonds"
+            "--dl_curve", type=float, default=0.5, help="Curve of diamonds"
         )
         self.OptionParser.add_option(
-            "--dl_height", type=float, default=4, help="Height of diamonds"
+            "--dl_length", type=float, default=24, help="Length of diamonds"
         )
         self.OptionParser.add_option(
-            "--dl_interval", type=int, default=28, help="Interval between diamonds"
-        )
-        self.OptionParser.add_option(
-            "--dl_spacing", type=int, default=4, help="Spacing of diamonds"
+            "--dl_spacing", type=float, default=4, help="Spacing of diamonds"
         )
 
         self.OptionParser.add_option(
-            "--hl_length", type=int, default=24, help="Length of combs"
+            "--cl_length", type=float, default=24, help="Length of combs"
         )
         self.OptionParser.add_option(
-            "--hl_height", type=float, default=4, help="Height of combs"
-        )
-        self.OptionParser.add_option(
-            "--hl_interval", type=int, default=28, help="Interval between combs"
-        )
-        self.OptionParser.add_option(
-            "--hl_spacing", type=int, default=4, help="Spacing of combs"
-        )
-        self.OptionParser.add_option(
-            "--hl_ratio", type=float, default=0.5, help="Element arrow ratio"
+            "--cl_spacing", type=float, default=4, help="Spacing of combs"
         )
 
         self.OptionParser.add_option(
             "--wl_length", type=int, default=20, help="Length of links"
         )
         self.OptionParser.add_option(
-            "--wl_height", type=float, default=0.5, help="Height of links"
-        )
-        self.OptionParser.add_option(
             "--wl_interval", type=int, default=30, help="Interval between links"
         )
         self.OptionParser.add_option(
-            "--wl_spacing", type=float, default=20, help="Spacing of links"
+            "--wl_spacing", type=float, default=5, help="Spacing of links"
         )
 
     def convert(self, value):
@@ -437,7 +422,7 @@ class LivingHingeEffect(inkex.Effect):
         self.options.height = self.convert(self.options.height)
 
         def draw_one(x, y):
-            if self.options.tab == "straight_lattice":
+            if self.options.tab == '"straight_lattice"':
                 generator = StraightLatticeGenerator(
                     x,
                     y,
@@ -449,7 +434,7 @@ class LivingHingeEffect(inkex.Effect):
                     self.convertmm(self.options.sl_spacing),
                     link_gap=self.convertmm(self.options.sl_gap),
                 )
-            elif self.options.tab == "diamond_lattice":
+            elif self.options.tab == '"diamond_lattice"':
                 generator = DiamondLatticeGenerator(
                     x,
                     y,
@@ -461,7 +446,7 @@ class LivingHingeEffect(inkex.Effect):
                     self.convertmm(self.options.dl_spacing),
                     diamond_curve=self.options.dl_curve,
                 )
-            elif self.options.tab == "cross_lattice":
+            elif self.options.tab == '"cross_lattice"':
                 generator = CrossLatticeGenerator(
                     x,
                     y,
@@ -472,7 +457,7 @@ class LivingHingeEffect(inkex.Effect):
                     self.convertmm(self.options.cl_length),
                     self.convertmm(self.options.cl_spacing),
                 )
-            elif self.options.tab == "wavy_lattice":
+            elif self.options.tab == '"wavy_lattice"':
                 generator = WavyLatticeGenerator(
                     x,
                     y,

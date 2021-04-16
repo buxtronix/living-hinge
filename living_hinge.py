@@ -181,11 +181,15 @@ class StraightLatticeGenerator(Generator):
         if lg < 0.1:
             # Single line for 0 height gap.
             self.fixed_commands = " m %f,%f h %f m %f,%f h %f m %f,%f h %f" % (
-                w / 5, 0,
-                w * 3 / 5, 0 - w * 4 / 5,
-                self.e_height / 2, w * 2 / 5,
-                w / 5, 0,
-                w * 2 / 5,)
+                0, self.e_height / 2,
+                w * 2 / 5,
+
+                0 - w / 5, 0 - self.e_height / 2,
+                w * 3 / 5,
+
+                0 - w / 5, self.e_height / 2,
+                w * 2 / 5,
+            )
         else:
             self.fixed_commands = (
                 " m %f,%f h %f v %f h %f"
@@ -342,7 +346,7 @@ class WavyLatticeGenerator(Generator):
             w / 5, 0,  # Control 1
             w / 10, h,  # Control 2
             w * 0.25, h,  # Curve down.
-            w * 0.1,
+            w * 0.075,
         )  # End horiz line.
 
 

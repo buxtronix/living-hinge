@@ -1,5 +1,7 @@
 # Inkscape lasercut living hinge extension
 
+[Link to releases](https://github.com/buxtronix/living-hinge/releases)
+
 This is an extension for Inkscape to render Living Hinges.
 
 Living hinges are patterns that can be laser cut into materials such

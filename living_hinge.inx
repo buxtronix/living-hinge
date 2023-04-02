@@ -2,8 +2,7 @@
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
   <_name>Living Hinges</_name>
   <id>net.buxtronix.living_hinge</id>
-  <dependency type="executable" location="inx">living_hinge.py</dependency>
-  <dependency type="executable" location="extensions">inkex.py</dependency>
+  <dependency type="executable" location="extensions">living_hinge.py</dependency>
   <param name="tab" type="notebook">
     <page name="straight_lattice" gui-text="Straight lattice">
 			<image>images/straight-lattice.png</image>

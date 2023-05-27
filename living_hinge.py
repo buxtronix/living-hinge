@@ -130,8 +130,10 @@ class Generator(object):
         if swatch:
             self.draw_swatch()
         # Round width/height to integer number of patterns.
-        self.e_length = self.width / max(round(self.width / self.e_length), 1.0)
-        self.e_height = self.height / max(round(self.height / self.e_height), 1.0)
+        x_patterns = max(round(self.width / self.e_length), 1.0)
+        y_patterns = max(round(self.height / self.e_height), 1.0)
+        self.e_length = self.width / x_patterns
+        self.e_height = self.height / y_patterns
         self.prerender()
         style = {
             "stroke": cut_colour,
@@ -140,9 +142,9 @@ class Generator(object):
         }
         path_command = ""
         y = self.y
-        while y < self.y + self.height:
+        for _ in range (y_patterns):
             x = self.x
-            while x < self.x + self.width:
+            for _ in range(x_patterns):
                 path_command = "%s %s " % (path_command, self.draw_one(x, y))
                 x += self.e_length
             y += self.e_height
@@ -471,10 +473,10 @@ class LivingHingeEffect(inkex.EffectExtension):
             for elem in self.svg.selected.values():
                 # Determine width and height based on the selected object's bounding box.
                 bbox = elem.bounding_box()
-                self.options.width = self.svg.unittouu(bbox.width)
-                self.options.height = self.svg.unittouu(bbox.height)
-                x = self.svg.unittouu(bbox.x.minimum)
-                y = self.svg.unittouu(bbox.y.minimum)
+                self.options.width = bbox.width 
+                self.options.height = bbox.height
+                x = bbox.x.minimum
+                y = bbox.y.minimum
                 draw_one(x, y)
 
 
